@@ -6,93 +6,99 @@ const soundClips = document.querySelector("#sound-clips");
 //  https://developer.chrome.com/docs/extensions/reference/api/tabCapture#method-capture
 // https://developer.chrome.com/docs/extensions/mv2/reference/tabCapture#preserving-system-audio
 
-function createWavData(int16Array, sampleRate = 44100) {
-  const dataSize = int16Array.length * 2;
-  const header = new Uint8Array(44);
+function audioBufferToWav(buffer, opt) {
+  opt = opt || {};
 
-  header.set(
-    new Uint8Array([
-      82,
-      73,
-      70,
-      70,
-      (dataSize + 36) & 0xff,
-      ((dataSize + 36) >> 8) & 0xff,
-      ((dataSize + 36) >> 16) & 0xff,
-      ((dataSize + 36) >> 24) & 0xff,
-      87,
-      65,
-      86,
-      69,
-      102,
-      109,
-      116,
-      32,
-      16,
-      0,
-      0,
-      0,
-      1,
-      0,
-      1,
-      0,
-      (sampleRate >> 0) & 0xff,
-      (sampleRate >> 8) & 0xff,
-      (sampleRate >> 16) & 0xff,
-      (sampleRate >> 24) & 0xff,
-      (sampleRate * 2) & 0xff,
-      ((sampleRate * 2) >> 8) & 0xff,
-      2,
-      0,
-      16,
-      0,
-      100,
-      97,
-      116,
-      97,
-      dataSize & 0xff,
-      (dataSize >> 8) & 0xff,
-      (dataSize >> 16) & 0xff,
-      (dataSize >> 24) & 0xff,
-    ])
-  );
+  var numChannels = buffer.numberOfChannels;
+  var sampleRate = buffer.sampleRate;
+  var format = opt.float32 ? 3 : 1;
+  var bitDepth = format === 3 ? 32 : 16;
 
-  const wavData = new Uint8Array(header.length + int16Array.length * 2);
-  wavData.set(header);
-  for (let i = 0; i < int16Array.length; i++) {
-    const offset = header.length + i * 2;
-    const value = int16Array[i];
-    wavData[offset] = value & 0xff;
-    wavData[offset + 1] = (value >> 8) & 0xff;
+  var result;
+  if (numChannels === 2) {
+    result = interleave(buffer.getChannelData(0), buffer.getChannelData(1));
+  } else {
+    result = buffer.getChannelData(0);
   }
 
-  return wavData;
+  return encodeWAV(result, format, sampleRate, numChannels, bitDepth);
 }
 
-function download(buffer, offset) {
-  // Convert collected samples to WAV data
-  const sampleRate = 44100;
-  const wavData = createWavData(
-    buffer.subarray(0, offset),
-    sampleRate
-  );
+function encodeWAV(samples, format, sampleRate, numChannels, bitDepth) {
+  var bytesPerSample = bitDepth / 8;
+  var blockAlign = numChannels * bytesPerSample;
 
-  console.log("wavdata", wavData);
+  var buffer = new ArrayBuffer(44 + samples.length * bytesPerSample);
+  var view = new DataView(buffer);
 
-  // Create a Blob from the WAV data
-  const blob = new Blob([wavData], { type: "audio/wav" });
+  /* RIFF identifier */
+  writeString(view, 0, "RIFF");
+  /* RIFF chunk length */
+  view.setUint32(4, 36 + samples.length * bytesPerSample, true);
+  /* RIFF type */
+  writeString(view, 8, "WAVE");
+  /* format chunk identifier */
+  writeString(view, 12, "fmt ");
+  /* format chunk length */
+  view.setUint32(16, 16, true);
+  /* sample format (raw) */
+  view.setUint16(20, format, true);
+  /* channel count */
+  view.setUint16(22, numChannels, true);
+  /* sample rate */
+  view.setUint32(24, sampleRate, true);
+  /* byte rate (sample rate * block align) */
+  view.setUint32(28, sampleRate * blockAlign, true);
+  /* block align (channel count * bytes per sample) */
+  view.setUint16(32, blockAlign, true);
+  /* bits per sample */
+  view.setUint16(34, bitDepth, true);
+  /* data chunk identifier */
+  writeString(view, 36, "data");
+  /* data chunk length */
+  view.setUint32(40, samples.length * bytesPerSample, true);
+  if (format === 1) {
+    // Raw PCM
+    floatTo16BitPCM(view, 44, samples);
+  } else {
+    writeFloat32(view, 44, samples);
+  }
 
-  // Create a download link
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `audio_${Date.now()}.wav`; // Add timestamp to filename
+  return buffer;
+}
 
-  // Simulate a click on the link to trigger the download
-  link.click();
+function interleave(inputL, inputR) {
+  var length = inputL.length + inputR.length;
+  var result = new Float32Array(length);
 
-  // Clean up
-  URL.revokeObjectURL(url);
+  var index = 0;
+  var inputIndex = 0;
+
+  while (index < length) {
+    result[index++] = inputL[inputIndex];
+    result[index++] = inputR[inputIndex];
+    inputIndex++;
+  }
+  return result;
+}
+
+function writeFloat32(output, offset, input) {
+  for (var i = 0; i < input.length; i++, offset += 4) {
+    output.setFloat32(offset, input[i], true);
+  }
+}
+
+function floatTo16BitPCM(output, offset, input) {
+  for (var i = 0; i < input.length; i++, offset += 2) {
+    var s = Math.max(-1, Math.min(1, input[i]));
+    output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+  }
+}
+
+function writeString(view, offset, string) {
+  for (var i = 0; i < string.length; i++) {
+    view.setUint8(offset + i, string.charCodeAt(i));
+  }
 }
 
 class ProcessorWorkletNode extends AudioWorkletNode {
@@ -102,7 +108,9 @@ class ProcessorWorkletNode extends AudioWorkletNode {
 }
 
 newSessionBtn.onclick = () => {
-  const audioContext = new AudioContext();
+  const audioContext = new AudioContext({
+    sampleRate: 44100,
+  });
 
   // Get the streamId from desktopCapture
   chrome.desktopCapture.chooseDesktopMedia(["tab", "audio"], (streamId) => {
@@ -129,39 +137,108 @@ newSessionBtn.onclick = () => {
         console.log("stream--->", stream);
 
         const mediaStream = audioContext.createMediaStreamSource(stream);
+        const chunks = [];
 
-        audioContext.audioWorklet.addModule("processors.js").then(() => {
-          let node = new ProcessorWorkletNode(audioContext);
-          mediaStream.connect(node);
-          node.connect(audioContext.destination);
+        // audioContext.audioWorklet.addModule("alternative.js").then(() => {
+        //   const node = new AudioWorkletNode(
+        //     audioContext,
+        //     "alt-worklet-processor"
+        //   );
+        //   mediaStream.connect(node).connect(audioContext.destination);
+        //   node.port.onmessage = (e) => {
+        //     const buffer = e.data;
+        //     console.log("incoming buffer -> ", buffer);
+        //     chunks.push(buffer);
+        //   };
 
-          node.port.onmessage = (e) => {
-            const { buffer, offset } = e.data;
-            console.log("data incoming -> ", buffer);
-            console.log('offset', offset);
-            download(buffer, offset);
-          };
+        //   setTimeout(() => {
+        //     // Create a Blob from the WAV data
+        //     const blob = new Blob(chunks, { type: "audio/ogg; codecs=opus" });
 
-          // AudioWorkletNode can be interoperable with other native AudioNodes.
-          //   oscillator.connect(node).connect(audioContext.destination);
-          //   oscillator.start();
-          // mediaStream.connect(node);
-          // node.connect(audioContext.destination);
-        });
+        //     // Create a download link
+        //     const url = URL.createObjectURL(blob);
+        //     const link = document.createElement("a");
+        //     link.href = url;
+        //     link.download = `audio_${Date.now()}.ogg`; // Add timestamp to filename
 
-        // const recorder = audioContext.createScriptProcessor(0, 1, 1);
-        // recorder.onaudioprocess = (event) => {
-        //   const inputData = event.inputBuffer.getChannelData(0);
-        //   console.log("audio--->", inputData);
-        // };
+        //     // Simulate a click on the link to trigger the download
+        //     link.click();
 
-        // mediaStream.connect(recorder);
-        // recorder.connect(audioContext.destination);
+        //     // Clean up
+        //     URL.revokeObjectURL(url);
+        //     mediaStream.disconnect();
+        //     console.log('disconnected done!')
+        //   }, 5000);
+        // });
 
-        // setTimeout(() => {
-        //     recorder.disconnect();
-        //     console.log('disconneceted!')
-        // }, 5000)
+        /** FIRST ALTERNATIVE SOLUTION */
+        // audioContext.audioWorklet.addModule("processors.js").then(() => {
+        //   let node = new ProcessorWorkletNode(audioContext);
+        //   mediaStream.connect(node);
+        //   node.connect(audioContext.destination);
+
+        //   node.port.onmessage = (e) => {
+        //     const { buffer, offset } = e.data;
+        //     console.log("data incoming -> ", buffer);
+        //     console.log('offset', offset);
+        //     download(buffer, offset);
+        //   };
+
+        //   // AudioWorkletNode can be interoperable with other native AudioNodes.
+        //   //   oscillator.connect(node).connect(audioContext.destination);
+        //   //   oscillator.start();
+        //   // mediaStream.connect(node);
+        //   // node.connect(audioContext.destination);
+        // });
+
+        /** THIS ONE IS DEPRECATED CODE - DO NO USE - */
+        // ### https://blog.yaox023.com/an-audio-recorder-using-scriptprocessornode
+        const recorder = audioContext.createScriptProcessor(4096, 1, 1);
+        recorder.onaudioprocess = (event) => {
+          const inputData = event.inputBuffer.getChannelData(0);
+          const buffer = new Float32Array(inputData);
+          chunks.push(buffer);
+          console.log("audio--->", buffer);
+        };
+
+        mediaStream.connect(recorder);
+        recorder.connect(audioContext.destination);
+
+        setTimeout(() => {
+          recorder.disconnect();
+          console.log("disconneceted!");
+
+          const length = chunks.reduce((prev, cur) => prev + cur.length, 0);
+          const outputBuffer = audioContext.createBuffer(1, length, 44100);
+          const outputData = outputBuffer.getChannelData(0);
+
+          let offset = 0;
+          for (let i = 0; i < chunks.length; i++) {
+            const inputData = chunks[i];
+            for (let j = 0; j < inputData.length; j++) {
+              outputData[offset] = inputData[j];
+              offset++;
+            }
+          }
+
+          console.log("output buffer data ", outputBuffer);
+
+          // convert audiobuffer to wav
+          const wav = audioBufferToWav(outputBuffer);
+          const blob = new window.Blob([new DataView(wav)], {
+            type: "audio/wav",
+          });
+          const url = window.URL.createObjectURL(blob);
+
+          const anchor = document.createElement("a");
+          document.body.appendChild(anchor);
+          anchor.style = "display: none";
+          anchor.href = url;
+          anchor.download = "audio.wav";
+          anchor.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(anchor);
+        }, 20000);
       })
       .catch((err) => {
         console.error(`The following getUserMedia error occurred: ${err}`);

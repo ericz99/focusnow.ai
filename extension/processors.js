@@ -14,6 +14,7 @@ class WorkletProcessor extends AudioWorkletProcessor {
 
   // # credit1: https://www.reddit.com/r/learnjavascript/comments/1buqjr3/solution_web_audio_replacing/
   // # credit2: https://dev.to/louisgv/quick-guide-to-audioworklet-30df
+  // https://stackoverflow.com/questions/56592566/how-to-record-audio-using-audioworklet-and-audioworkletprocessor-in-javascript
   process(inputs, _outputs, _parameters) {
     // Assumes the input is mono (1 channel). If there are more channels, they
     // are ignored
