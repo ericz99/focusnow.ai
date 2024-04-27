@@ -1,0 +1,53 @@
+{
+  "name": "Focusnow AI Assist",
+  "description": "Your very own AI assistant that will help you with your coding challenges.",
+  "version": "0.0.1",
+  "manifest_version": 3,
+  "minimum_chrome_version": "116",
+  "action": {
+    "default_title": "Click to show an alert"
+  },
+  "host_permissions": ["http://*/*", "https://*/*", "<all_urls>"],
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "permissions": [
+    "activeTab",
+    "tabCapture",
+    "offscreen",
+    "scripting",
+    "storage",
+    "desktopCapture",
+    "tabs"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://*/*", "http://*/*"],
+      "js": ["screenshot.js", "record.js"],
+      "all_frames": true
+    }
+  ],
+  "commands": {
+    "send-screenshot-to-ai": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+5"
+      },
+      "description": "Send screenshot to AI.",
+      "global": true
+    },
+    "record-session": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+6"
+      },
+      "description": "Record new session.",
+      "global": true
+    },
+    "end-session": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+7"
+      },
+      "description": "End current session.",
+      "global": true
+    }
+  }
+}

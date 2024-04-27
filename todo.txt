@@ -1,0 +1,42 @@
+idea: 1
+
+- agent able to handle github issues
+- come up with alternative solutions
+- implement product features
+
+idea: 2
+
+interview simulator playground
+
+- help user to land a job in a simulated environment with real time limit
+- help user get good at tech interview
+- virtual ai interview helper created in chrome extension 
+    - using hot key to assistant user by taking a screenshot and processing it 
+    - then spit out information
+- ai assistant give you guidance on answering coding question using chrome extension
+
+- software tools
+    - Resume ai
+    - interview prep with flash card that is AI generated with best settings
+    - interview assistant ai in chrome extension allow user to share screen and assist user along the way "ZERO" detection
+        - it will give human like answer, and answers
+    - (maybe) instant apply.ai
+
+    https://www.youtube.com/watch?v=sSleIpuecZk
+    https://developer.chrome.com/docs/extensions/reference/api/desktopCapture
+    https://developer.chrome.com/docs/extensions/how-to/web-platform/screen-capture
+
+    chrome extension:
+        - take a screenshot of the current screen using hot key
+        - send it to /api to talk with our AI 
+        - then it will send back background.js that will help process everything to our content.js
+        --- features
+
+        - user able to start new session and anytime end user speak it will get relay to let the bot know if its an question
+        - capable of using hotkey to take screenshot and send to AI
+        - all session are stored on storage to allow user to view session and can chat with it using chatbot
+        - there will be a timer of the session as well and initutive UI
+
+
+1. user click new session or using hotkey
+2. now it will record user session
