@@ -1,42 +1,48 @@
 // https://developer.chrome.com/blog/audio-worklet
 
 class WorkletProcessor extends AudioWorkletProcessor {
-  static BUFFER_SIZE = 8192;
+  static BUFFER_SIZE = 4096;
   static SAMPLE_RATE = 44100; // Change this to your desired sample rate
   static CHUNK_DURATION = 10; // Duration of each audio chunk in seconds
 
   constructor() {
     super();
-    this.buffer = new Int16Array(WorkletProcessor.BUFFER_SIZE);
-    this.offset = 0;
-    this.sampleCount = 0;
+    this.buffer = new Float32Array(WorkletProcessor.BUFFER_SIZE);
+    this.byteWritten = 0;
   }
 
   // # credit1: https://www.reddit.com/r/learnjavascript/comments/1buqjr3/solution_web_audio_replacing/
   // # credit2: https://dev.to/louisgv/quick-guide-to-audioworklet-30df
   // https://stackoverflow.com/questions/56592566/how-to-record-audio-using-audioworklet-and-audioworkletprocessor-in-javascript
+  // https://stackoverflow.com/questions/25775704/html5-audio-api-inputbuffer-getchanneldata-to-audio-array-buffer
+  // https://stackoverflow.com/questions/61264581/how-to-convert-audio-buffer-to-mp3-in-javascript
   process(inputs, _outputs, _parameters) {
-    // Assumes the input is mono (1 channel). If there are more channels, they
-    // are ignored
     const input = inputs[0][0]; // first channel of first input
-
-    // convert input channel and feed it into buffer of int16array
-    for (let i = 0; i < input.length; i++) {
-      const sample = Math.max(-1, Math.min(1, input[i]));
-      this.buffer[i + this.offset] =
-        sample < 0 ? sample * 0x8000 : sample * 0x7fff;
-    }
-
-    this.offset += input.length;
-    this.sampleCount += input.length;
-
-    // Once the buffer is filled entirely, flush the buffer
-    if (this.sampleCount >= WorkletProcessor.SAMPLE_RATE * WorkletProcessor.CHUNK_DURATION) {
-      this.flush();
-      this.sampleCount = 0;
-    }
+    this.append(input);
 
     return true;
+  }
+
+  append(data) {
+    if (this.isBufferFull()) this.flush();
+
+    if (!data) return;
+
+    for (let i = 0; i < data.length; i++) {
+      this.buffer[this.byteWritten++] = data[i];
+    }
+  }
+
+  initBuffer() {
+    this.byteWritten = 0;
+  }
+
+  isBufferEmpty() {
+    return this.byteWritten == 0;
+  }
+
+  isBufferFull() {
+    return this.byteWritten == WorkletProcessor.BUFFER_SIZE;
   }
 
   /**
@@ -44,12 +50,12 @@ class WorkletProcessor extends AudioWorkletProcessor {
    * the offset to 0
    */
   flush() {
-    this.port.postMessage({
-        buffer: this.buffer,
-        offset: this.offset
-    });
-    
-    this.offset = 0;
+    this.port.postMessage(
+      this.byteWritten < this.buffer
+        ? this.buffer.slice(0, this.byteWritten)
+        : this.buffer
+    );
+    this.initBuffer();
   }
 }
 
