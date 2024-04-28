@@ -134,14 +134,12 @@ function saveAudio(chunks, audioContext) {
   document.body.removeChild(anchor);
 }
 
-class ProcessorWorkletNode extends AudioWorkletNode {
-  constructor(context) {
-    super(context, "worklet-processor");
-  }
-}
+let audioContext = null;
+let audioSource = null;
+let intv = null;
 
 newSessionBtn.onclick = () => {
-  const audioContext = new AudioContext({
+  audioContext = new AudioContext({
     sampleRate: 44100,
   });
 
@@ -169,15 +167,15 @@ newSessionBtn.onclick = () => {
         stream.removeTrack(stream.getVideoTracks()[0]);
         console.log("stream--->", stream);
 
-        const mediaStream = audioContext.createMediaStreamSource(stream);
-        const chunks = [];
+        audioSource = audioContext.createMediaStreamSource(stream);
+        let chunks = [];
 
         audioContext.audioWorklet.addModule("processors.js").then(() => {
           const node = new AudioWorkletNode(
             audioContext,
             "worklet-processor"
           );
-          mediaStream.connect(node).connect(audioContext.destination);
+          audioSource.connect(node).connect(audioContext.destination);
           node.port.onmessage = (e) => {
             const inputData = e.data;
             const buffer = new Float32Array(inputData);
@@ -185,12 +183,11 @@ newSessionBtn.onclick = () => {
             chunks.push(buffer);
           };
 
-          setTimeout(() => {
-            mediaStream.disconnect();
+          intv = setInterval(() => {
             console.log('disconnected done!')
-
             saveAudio(chunks, audioContext);
-          }, 60000);
+            chunks = [];
+          }, 15000);
         });
 
         // /** THIS ONE IS DEPRECATED CODE - DO NO USE - */
@@ -219,77 +216,11 @@ newSessionBtn.onclick = () => {
   });
 };
 
-// endSessionBtn.disabled = true;
-
-// if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-//   console.log("getUserMedia supported.");
-
-//   let chunks = [];
-//   let constraints = { audio: true };
-
-//   navigator.mediaDevices
-//     .getUserMedia(constraints)
-
-//     // Success callback
-//     .then((stream) => {
-//       const audioStream = new MediaStream([...stream.getTracks()]);
-//       const mediaRecorder = new MediaRecorder(audioStream);
-
-//       newSessionBtn.onclick = function () {
-//         mediaRecorder.start();
-//         console.log(mediaRecorder.state);
-//         console.log("Recorder started.");
-//         newSessionBtn.style.background = "red";
-
-//         endSessionBtn.disabled = false;
-//         newSessionBtn.disabled = true;
-//       };
-
-//       endSessionBtn.onclick = function () {
-//         mediaRecorder.stop();
-//         console.log(mediaRecorder.state);
-//         console.log("Recorder stopped.");
-//         endSessionBtn.style.background = "";
-//         endSessionBtn.style.color = "";
-
-//         endSessionBtn.disabled = true;
-//         newSessionBtn.disabled = false;
-//       };
-
-//       mediaRecorder.onstop = function (e) {
-//         console.log("Last data to read (after MediaRecorder.stop() called).");
-
-//         const clipContainer = document.createElement("article");
-//         const clipLabel = document.createElement("p");
-//         const audio = document.createElement("audio");
-
-//         clipContainer.classList.add("clip");
-//         audio.setAttribute("controls", "");
-
-//         clipContainer.appendChild(audio);
-//         clipContainer.appendChild(clipLabel);
-//         soundClips.appendChild(clipContainer);
-
-//         audio.controls = true;
-//         const blob = new Blob(chunks, { type: mediaRecorder.mimeType });
-//         chunks = [];
-//         const audioURL = window.URL.createObjectURL(blob);
-//         audio.src = audioURL;
-//         console.log("recorder stopped");
-
-//         console.log(audio);
-//       };
-
-//       mediaRecorder.ondataavailable = (e) => {
-//         console.log("data", e.data);
-//         chunks.push(e.data);
-//       };
-//     })
-
-//     // Error callback
-// .catch((err) => {
-//   console.error(`The following getUserMedia error occurred: ${err}`);
-// });
-// } else {
-//   console.log("getUserMedia not supported on your browser!");
-// }
+endSessionBtn.onclick = () => {
+  if (!audioContext || !audioSource) return;
+  audioSource.disconnect();
+  audioContext = null;
+  audioSource = null;
+  clearInterval(intv);
+  console.log('Disconnecting audio source!')
+};
