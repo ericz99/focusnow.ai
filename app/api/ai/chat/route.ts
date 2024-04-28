@@ -3,15 +3,7 @@ import OpenAI from "openai";
 import { OpenAIStream, StreamingTextResponse } from "ai";
 import { NextResponse, NextRequest } from "next/server";
 
-import { pinecone } from "@/core/db";
-import { llmOpenAI } from "@/core/llm/openai";
 import { getOnlyContentTokenLength, getTokenLength } from "@/lib/tokenizer";
-import {
-  createChatHistory,
-  createChatRequest,
-  getChatHistoryById,
-  addRequestToHistory,
-} from "@/prisma/db/chat";
 
 // Create an OpenAI API client (that's edge friendly!)
 const openai = new OpenAI({

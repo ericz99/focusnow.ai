@@ -47,10 +47,15 @@ enum PricingPlanInterval {
   year
 }
 
-enum Role {
-  owner
-  admin
-  member
+enum UserType {
+  interviewer
+  interviewee
+  copilot
+}
+
+enum DocumentType {
+  resume
+  cover_letter
 }
 
 model User {
@@ -60,9 +65,9 @@ model User {
   name         String?
   email        String         @unique
   password     String?
-  owners       Team[]
-  teams        TeamMember[]
   subs         Subscription[]
+  credit       Credit?
+  sessions     Session[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 }
@@ -118,58 +123,44 @@ model Subscription {
   updatedAt          DateTime           @updatedAt
 }
 
-model Team {
-  id         String       @id @default(cuid())
-  slug       String?      @unique
-  name       String
-  owner      User         @relation(fields: [ownerId], references: [id])
-  ownerId    String
-  members    TeamMember[]
-  invites    Invite[]
-  assistants Assistant[]
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
+model Credit {
+  id              String   @id @default(cuid())
+  creditRemaining Int      @default(0)
+  user            User?    @relation(fields: [userId], references: [id])
+  userId          String?  @unique
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  @@index([ownerId])
-}
-
-model TeamMember {
-  id        String              @id @default(cuid())
-  user      User                @relation(fields: [userId], references: [id])
-  userId    String
-  team      Team                @relation(fields: [teamId], references: [id])
-  teamId    String
-  roles     TeamMemberOnRoles[]
-  createdAt DateTime            @default(now())
-  updatedAt DateTime            @updatedAt
-
-  @@index([teamId])
   @@index([userId])
 }
 
-model TeamMemberOnRoles {
-  id           String     @id @default(cuid())
-  teamMember   TeamMember @relation(fields: [teamMemberId], references: [id])
-  teamMemberId String
-  role         Role
+model Session {
+  id          String       @id @default(cuid())
+  name        String
+  isFinished  Boolean      @default(false)
+  totalTime   String
+  finishedAt  DateTime
+  transcripts Transcript[]
+  user        User         @relation(fields: [userId], references: [id])
+  userId      String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
-  @@index([teamMemberId])
+  @@index([userId])
 }
 
-model Invite {
-  id             String    @id @default(cuid())
-  recipientEmail String    @unique
-  code           String    @unique @default(cuid())
-  hasExpiration  Boolean   @default(false)
-  accepted       Boolean   @default(false)
-  expiredAt      DateTime?
-  team           Team      @relation(fields: [teamId], references: [id])
-  teamId         String
-
+model Transcript {
+  id        String   @id @default(cuid())
+  type      UserType
+  content   String   @db.LongText
+  session   Session  @relation(fields: [sessionId], references: [id])
+  sessionId String
+  metadatas Json?
+  commands  Json?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([teamId])
+  @@index([sessionId])
 }
 
 model Usage {
@@ -183,23 +174,18 @@ model Usage {
 }
 
 model Request {
-  id                     String                @id @default(cuid())
-  openApiId              String?
-  model                  String
-  usage                  Usage?                @relation(fields: [usageId], references: [id])
-  usageId                String?               @unique
-  role                   String
-  content                String                @db.LongText
-  assistantChatHistory   AssistantChatHistory? @relation(fields: [assistantChatHistoryId], references: [id])
-  assistantChatHistoryId String?
-  createdAt              DateTime              @default(now())
-  updatedAt              DateTime              @updatedAt
-  feedback               RequestFeedback?
-
-  @@index([assistantChatHistoryId])
+  id        String           @id @default(cuid())
+  openApiId String?
+  model     String
+  usage     Usage?           @relation(fields: [usageId], references: [id])
+  usageId   String?          @unique
+  role      String
+  content   String           @db.LongText
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  feedback  RequestFeedback?
 }
 
-// NOT DONE
 model RequestFeedback {
   id          String   @id @default(cuid())
   request     Request  @relation(fields: [requestId], references: [id])
@@ -211,69 +197,15 @@ model RequestFeedback {
   @@index([requestId])
 }
 
-model Assistant {
-  id                   String                 @id @default(cuid())
-  slug                 String?                @unique
-  name                 String
-  visibility           Visibility             @default(private)
-  color                String                 @default("#000000")
-  iconUrl              String?
-  status               Status                 @default(inactive)
-  model                String                 @default("gpt-3.5-turbo-0125")
-  welcomeMessage       String?
-  selectedSystemPrompt String?                @default("default")
-  systemPrompt         String?                @db.LongText
-  team                 Team?                  @relation(fields: [teamId], references: [id])
-  teamId               String?
-  chatHistory          AssistantChatHistory[]
-  documents            Document[]
-  folders              Folder[]
-  createdAt            DateTime               @default(now())
-  updatedAt            DateTime               @updatedAt
-
-  @@index([teamId])
-}
-
-model AssistantChatHistory {
-  id          String     @id @default(cuid())
-  name        String
-  requests    Request[]
-  assistant   Assistant? @relation(fields: [assistantId], references: [id])
-  assistantId String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-
-  @@index([assistantId])
-}
-
-model Folder {
-  id          String     @id @default(cuid())
-  name        String
-  description String
-  assistant   Assistant? @relation(fields: [assistantId], references: [id])
-  assistantId String?
-  documents   Document[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-
-  @@index([assistantId])
-}
-
 model Document {
   id             String          @id @default(cuid())
   fileId         String          @unique
   fileExt        String
   name           String
-  assistant      Assistant?      @relation(fields: [assistantId], references: [id])
-  assistantId    String?
-  folder         Folder?         @relation(fields: [folderId], references: [id])
-  folderId       String?
+  type           DocumentType
   documentChunks DocumentChunk[]
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
-
-  @@index([assistantId])
-  @@index([folderId])
 }
 
 model DocumentChunk {

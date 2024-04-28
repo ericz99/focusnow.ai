@@ -5,8 +5,6 @@ import { type EmailOtpType } from "@supabase/supabase-js";
 import {
   createNewUser,
   checkIfHasUser,
-  createDefaultEnvironment,
-  getUser,
   UserCreatedItemIncluded,
 } from "@/prisma/db/user";
 
@@ -31,30 +29,17 @@ export async function GET(request: NextRequest) {
         email: user?.email!,
       });
 
-      let newUser: UserCreatedItemIncluded | null = null;
-
       // # if no user just create an user record in our database
       if (!hasUser) {
         // # create new user
-        newUser = await createNewUser({
+        await createNewUser({
           supaUserId: user?.id!,
           email: user?.email!,
         });
-
-        // # create default environment
-        await createDefaultEnvironment(user!);
       }
 
-      // # get current user
-      const _user = await getUser({
-        id: newUser?.id,
-      });
-
-      // # grab the team
-      const teamId = _user!.teams[0].team.id;
-
       // # redirect user to their default team
-      return NextResponse.redirect(`${requestUrl.origin}/app/${teamId}`);
+      return NextResponse.redirect(`${requestUrl.origin}/app`);
     }
   }
 

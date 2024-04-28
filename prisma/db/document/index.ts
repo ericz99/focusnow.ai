@@ -36,11 +36,6 @@ export const createDocument = async (
     const document = await prisma.document.create({
       data: {
         ...rest,
-        assistant: {
-          connect: {
-            id: assistantId,
-          },
-        },
       },
     });
 

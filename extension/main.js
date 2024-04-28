@@ -5,6 +5,7 @@ const soundClips = document.querySelector("#sound-clips");
 // # https://github.com/GoogleChrome/chrome-extensions-samples/issues/627
 //  https://developer.chrome.com/docs/extensions/reference/api/tabCapture#method-capture
 // https://developer.chrome.com/docs/extensions/mv2/reference/tabCapture#preserving-system-audio
+// https://developer.mozilla.org/en-US/docs/Web/API/Screen_Capture_API/Using_Screen_Capture
 
 function audioBufferToWav(buffer, opt) {
   opt = opt || {};
@@ -224,3 +225,24 @@ endSessionBtn.onclick = () => {
   clearInterval(intv);
   console.log('Disconnecting audio source!')
 };
+
+// if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+//   console.log("getUserMedia supported.");
+//   navigator.mediaDevices
+//     .getUserMedia(
+//       // constraints - only audio needed for this app
+//       {
+//         audio: true,
+//       },
+//     )
+
+//     // Success callback
+//     .then((stream) => {})
+
+//     // Error callback
+//     .catch((err) => {
+//       console.error(`The following getUserMedia error occurred: ${err}`);
+//     });
+// } else {
+//   console.log("getUserMedia not supported on your browser!");
+// }
