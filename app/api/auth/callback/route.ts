@@ -28,7 +28,7 @@ export async function GET(request: Request) {
         });
       }
 
-      return NextResponse.redirect(`${requestUrl.origin}/app`);
+      return NextResponse.redirect(`${requestUrl.origin}/app/coding`);
     }
   }
 

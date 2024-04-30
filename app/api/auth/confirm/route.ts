@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       }
 
       // # redirect user to their default team
-      return NextResponse.redirect(`${requestUrl.origin}/app`);
+      return NextResponse.redirect(`${requestUrl.origin}/app/coding`);
     }
   }
 

@@ -56,3 +56,19 @@ export const toDateTime = (secs: number) => {
   t.setSeconds(secs);
   return t;
 };
+
+export const formatDate = (date: Date) => {
+  // Get the parts of the date (month, day, year)
+  var month = date.getMonth() + 1; // Adding 1 because getMonth() returns zero-based index (0 for January)
+  var day = date.getDate();
+  var year = date.getFullYear();
+
+  // Pad single digit month or day with leading zero
+  var paddedMonth = month < 10 ? "0" + month : month;
+  var paddedDay = day < 10 ? "0" + day : day;
+
+  // Format the date as mm/dd/yyyy
+  var formattedDate = paddedMonth + "/" + paddedDay + "/" + year;
+
+  return formattedDate;
+};

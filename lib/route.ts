@@ -1,48 +1,23 @@
-export const getMainRoute = (teamId: string) => {
+export const getMainRoute = () => {
   return [
     {
-      label: "Home",
-      path: `/app/${teamId}`,
+      label: "Dashboard",
+      path: `/app`,
       isDisabled: false,
     },
     {
-      label: "Usage",
-      path: `/app/${teamId}/usage`,
+      label: "Documents",
+      path: `/app/documents`,
       isDisabled: false,
     },
     {
-      label: "Plans",
-      path: `/app/${teamId}/plans`,
+      label: "Code Copilot",
+      path: `/app/coding`,
       isDisabled: false,
     },
     {
-      label: "Members",
-      path: `/app/${teamId}/members`,
-      isDisabled: false,
-    },
-    {
-      label: "Settings",
-      path: `/app/${teamId}/settings`,
-      isDisabled: false,
-    },
-  ];
-};
-
-export const getAssistantRoute = (teamId: string, assistantId: string) => {
-  return [
-    {
-      label: "Document",
-      path: `/app/${teamId}/${assistantId}/document`,
-      isDisabled: false,
-    },
-    {
-      label: "Playground",
-      path: `/app/${teamId}/${assistantId}/playground`,
-      isDisabled: false,
-    },
-    {
-      label: "Settings",
-      path: `/app/${teamId}/${assistantId}/settings`,
+      label: "Interview Copilot",
+      path: `/app/interview`,
       isDisabled: false,
     },
   ];

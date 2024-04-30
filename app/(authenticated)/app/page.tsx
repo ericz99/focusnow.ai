@@ -1,5 +1,5 @@
 import React from "react";
 
-export default function AuthApp() {
-  return <div>AuthApp</div>;
+export default function DashboardPage() {
+  return <div>DashboardPage</div>;
 }

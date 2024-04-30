@@ -68,6 +68,7 @@ model User {
   subs         Subscription[]
   credit       Credit?
   sessions     Session[]
+  documents    Document[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 }
@@ -203,7 +204,10 @@ model Document {
   fileExt        String
   name           String
   type           DocumentType
+  isPrimary      Boolean         @default(false)
   documentChunks DocumentChunk[]
+  user           User            @relation(fields: [userId], references: [id])
+  userId         String
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 }

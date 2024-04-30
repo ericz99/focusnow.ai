@@ -5,15 +5,16 @@ import type {
   DocumentChunkSchema,
 } from "@/lib/schemas/document";
 
-export const getDocuments = async (assistantId: string) => {
+export const getDocuments = async (userId: string) => {
   try {
     const documents = await prisma.document.findMany({
       where: {
-        assistant: {
-          id: {
-            contains: assistantId,
-          },
+        user: {
+          supaUserId: userId,
         },
+      },
+      include: {
+        user: true,
       },
     });
 
@@ -27,15 +28,23 @@ export const getDocuments = async (assistantId: string) => {
 
 export const createDocument = async (
   data: DocumentSchema & {
-    assistantId: string;
+    userId: string;
   }
 ) => {
   try {
-    const { assistantId, ...rest } = data;
+    const { userId, ...rest } = data;
 
     const document = await prisma.document.create({
       data: {
         ...rest,
+        user: {
+          connect: {
+            supaUserId: userId,
+          },
+        },
+      },
+      include: {
+        user: true,
       },
     });
 

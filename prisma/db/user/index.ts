@@ -93,13 +93,6 @@ export const createNewUser = async ({ supaUserId, email }: NewUserSchema) => {
         email,
         supaUserId,
         stripeUserId: stripeCustomer.id,
-        credit: {
-          create: [
-            {
-              creditRemaining: 0,
-            },
-          ],
-        },
       },
     });
 

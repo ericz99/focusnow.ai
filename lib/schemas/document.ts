@@ -4,6 +4,7 @@ export const documentSchema = z.object({
   fileId: z.string(),
   fileExt: z.string(),
   name: z.string(),
+  type: z.enum(["resume", "cover_letter"]),
 });
 
 export type DocumentSchema = z.infer<typeof documentSchema>;
