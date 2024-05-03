@@ -3,7 +3,7 @@ import React from "react";
 import { Sidebar } from "@/components/layouts/sidebar";
 import { WelcomeMessage } from "@/components/internals/welcome-message";
 
-export default function MainAppLayout({
+export default function MainDefaultLayout({
   children,
 }: {
   children: React.ReactNode;

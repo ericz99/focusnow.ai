@@ -50,6 +50,8 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^0.2.1",
+    "extendable-media-recorder": "^9.2.2",
+    "extendable-media-recorder-wav-encoder": "^7.0.109",
     "framer-motion": "^11.1.7",
     "hamburger-react": "^2.5.0",
     "js-tiktoken": "^1.0.11",
@@ -80,6 +82,7 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.13",
+    "@types/audioworklet": "^0.0.55",
     "@types/node": "^20.12.7",
     "@types/pdf-parse": "^1.1.4",
     "@types/react": "^18.3.1",
