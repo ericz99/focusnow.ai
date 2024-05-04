@@ -9,6 +9,9 @@ class WorkletProcessor extends AudioWorkletProcessor {
     super();
     this.buffer = new Float32Array(WorkletProcessor.BUFFER_SIZE);
     this.byteWritten = 0;
+
+    // Parameters for VAD
+    this.energyThreshold = 0.0000000005; // Adjust this threshold according to your needs
   }
 
   // # credit1: https://www.reddit.com/r/learnjavascript/comments/1buqjr3/solution_web_audio_replacing/
@@ -18,9 +21,37 @@ class WorkletProcessor extends AudioWorkletProcessor {
   // https://stackoverflow.com/questions/61264581/how-to-convert-audio-buffer-to-mp3-in-javascript
   process(inputs, _outputs, _parameters) {
     const input = inputs[0][0]; // first channel of first input
-    this.append(input);
+
+    const isVoiceActive = this.detectVoiceActivity(input);
+
+    if (isVoiceActive) {
+      this.append(input);
+    } else {
+      if (this.byteWritten > 0 && !this.speechDetected) {
+        this.flush()
+      }
+    }
 
     return true;
+  }
+
+  detectVoiceActivity(data) {
+    let energySum = 0;
+
+    // Calculate energy of the audio frame
+    for (let i = 0; i < data.length; i++) {
+      energySum += data[i] * data[i];
+    }
+    const energy = energySum / data.length;
+
+    // Check if the energy exceeds the threshold
+    if (energy > this.energyThreshold) {
+      this.speechDetected = true;
+      return true;
+    }
+
+    this.speechDetected = false;
+    return false;
   }
 
   append(data) {
@@ -50,11 +81,13 @@ class WorkletProcessor extends AudioWorkletProcessor {
    * the offset to 0
    */
   flush() {
-    this.port.postMessage(
-      this.byteWritten < this.buffer
-        ? this.buffer.slice(0, this.byteWritten)
-        : this.buffer
-    );
+    this.port.postMessage({
+      buffer:
+        this.byteWritten < this.buffer
+          ? this.buffer.slice(0, this.byteWritten)
+          : this.buffer,
+      speechDetected: this.speechDetected,
+    });
     this.initBuffer();
   }
 }

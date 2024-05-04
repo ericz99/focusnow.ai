@@ -38,6 +38,7 @@ export default function useMediaRecorder() {
   const audioContext = useRef<AudioContext | null>(null);
   const audioSource = useRef<MediaStreamAudioSourceNode | null>(null);
   const audioOutput = useRef<MediaDeviceInfo[]>([]);
+  const queue = useRef<Float32Array[][]>([]);
   const [_status, setStatus] = useState<StatusMessages>("idle");
   const [_error, setError] = useState<keyof typeof RecorderErrors>("NONE");
 
@@ -155,23 +156,36 @@ export default function useMediaRecorder() {
 
         node.port.onmessage = onStreamData;
 
-        setInterval(() => {
-          console.log("disconnected done!");
-          const b64 = saveAudio(mediaChunks.current, audioContext.current);
-          console.log(b64);
-          // mediaChunks.current = [];
-          // audioSource.current?.disconnect();
-          appendData(b64);
-        }, 5000);
+        // setInterval(() => {
+        // console.log("disconnected done!");
+        // const b64 = saveAudio(mediaChunks.current, audioContext.current);
+        // console.log(b64);
+        // mediaChunks.current = [];
+        // // audioSource.current?.disconnect();
+        // appendData(b64);
+        // }, 5000);
       }
     }
   };
 
   const onStreamData = (e: any) => {
-    const inputData = e.data;
-    const buffer = new Float32Array(inputData);
-    console.log("incoming buffer -> ", buffer);
-    mediaChunks.current.push(buffer);
+    const { buffer, speechDetected } = e.data;
+    const _buffer = new Float32Array(buffer);
+    // console.log("incoming buffer -> ", _buffer);
+    console.log("speechDetected", speechDetected);
+    mediaChunks.current.push(_buffer);
+
+    if (!speechDetected) {
+      console.log("no speech detected");
+      const b64 = saveAudio(mediaChunks.current, audioContext.current);
+
+      if (b64) {
+        console.log(b64);
+        mediaChunks.current = [];
+        // audioSource.current?.disconnect();
+        appendData(b64);
+      }
+    }
   };
 
   const stopStream = () => {

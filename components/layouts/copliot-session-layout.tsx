@@ -61,7 +61,7 @@ export default function CopilotSessionLayout() {
           <div className="flex flex-col h-full w-full max-w-full flex-1 relative">
             <SessionControl startStream={startStream} stopStream={stopStream} />
 
-            <div className="flex h-full w-full">
+            <div className="flex h-full w-full overflow-hidden">
               <InterviewerPanel />
               <CopilotPanel />
             </div>
