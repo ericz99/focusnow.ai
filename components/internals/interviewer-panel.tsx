@@ -8,6 +8,14 @@ export function InterviewerPanel() {
   const { incomingData, releaseData } = useDataStore();
   const [messages, setMessages] = useState<string[]>([]);
 
+  const checkIfQuestion = (text: string) => {
+    const regex = /\?$/;
+
+    if (regex.test(text)) {
+      console.log("is a question!");
+    }
+  };
+
   useEffect(() => {
     const abortController = new AbortController();
 
@@ -27,6 +35,7 @@ export function InterviewerPanel() {
         console.log("transcription", transcription);
         setMessages([...messages, transcription]);
         releaseData();
+        checkIfQuestion(transcription);
       };
 
       getTranscription();
@@ -36,8 +45,8 @@ export function InterviewerPanel() {
   }, [incomingData, setMessages, messages, releaseData]);
 
   return (
-    <div className="w-[400px] h-full p-4 relative flex overflow-hidden">
-      <div className="w-full h-full rounded-lg border-x-2 border-b-2 border-solid border-zinc-900">
+    <div className="w-[400px] h-full relative flex overflow-hidden">
+      <div className="w-full h-full rounded-lg border-2 border-b-2 border-solid border-zinc-900 py-8 px-4">
         <div className="w-full rounded-t-lg p-3 bg-zinc-900 text-lg text-white font-semibold">
           Interviewer
         </div>

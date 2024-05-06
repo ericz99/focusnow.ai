@@ -16,10 +16,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
 import { createClient } from "@/lib/supabase/client";
-
-import { emailUserSchema, EmailUserSchema } from "@/lib/schemas/user";
+import { emailUserSchema, EmailUserSchema } from "@/prisma/db/user";
 
 export function EmailPassAuth() {
   const supabase = createClient();

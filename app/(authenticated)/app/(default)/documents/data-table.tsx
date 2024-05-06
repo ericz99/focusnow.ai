@@ -21,15 +21,18 @@ import {
 
 import { DataTableViewOptions } from "@/components/internals/data-table-view-options";
 import { DataTablePagination } from "@/components/internals/data-table-pagination";
+import { DocumentItemIncluded } from "@/prisma/db/document";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  deleteDocumentAction: (data: DocumentItemIncluded[]) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  deleteDocumentAction,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({});
 
@@ -110,7 +113,10 @@ export function DataTable<TData, TValue>({
       </div>
 
       <div className="mt-8">
-        <DataTablePagination table={table} />
+        <DataTablePagination
+          table={table}
+          deleteDocumentAction={deleteDocumentAction}
+        />
       </div>
     </>
   );

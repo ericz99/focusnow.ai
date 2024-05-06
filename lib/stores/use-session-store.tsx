@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export interface SessionStore {
+interface SessionStore {
   isChromeAudioActive: boolean;
   setChromeAudioActive: (isActive: boolean) => void;
 }

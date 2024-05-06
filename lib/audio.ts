@@ -139,7 +139,7 @@ export function saveAudio(chunks: any[], audioContext: any) {
 
   console.log("output buffer data ", outputBuffer);
 
-  if (outputBuffer.duration < 3) return null;
+  if (outputBuffer.duration < 1.2) return null;
 
   // convert audiobuffer to wav
   const wav = audioBufferToWav(outputBuffer, {});

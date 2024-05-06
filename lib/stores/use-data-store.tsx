@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export interface DataStore {
+interface DataStore {
   incomingData: string[];
   appendData: (data: string) => void;
   releaseData: () => void;

@@ -1,11 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
-import {
-  createNewUser,
-  checkIfHasUser,
-  UserCreatedItemIncluded,
-} from "@/prisma/db/user";
+import { createNewUser, checkIfHasUser } from "@/prisma/db/user";
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);

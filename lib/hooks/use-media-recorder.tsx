@@ -65,7 +65,11 @@ export default function useMediaRecorder() {
     setStatus("acquiring_media");
 
     const constraints: MediaStreamConstraints = {
-      audio: true,
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false,
+      },
       video: true,
     };
 
@@ -80,10 +84,6 @@ export default function useMediaRecorder() {
 
       // # remove video track
       captureStream.removeTrack(captureStream.getVideoTracks()[0]);
-
-      // const stream = await window.navigator.mediaDevices.getUserMedia(
-      //   constraints
-      // );
 
       mediaStream.current = captureStream;
       audioContext.current = ctx;
@@ -145,25 +145,20 @@ export default function useMediaRecorder() {
       if (mediaStream.current && audioSource.current && audioContext.current) {
         await audioContext.current.audioWorklet.addModule("/processor.js");
 
+        const gainNode = audioContext.current.createGain();
+        const audioDest = audioContext.current.createMediaStreamDestination();
+
+        gainNode.connect(audioDest);
+        gainNode.gain.value = 0.5;
+
         const node = new AudioWorkletNode(
           audioContext.current,
           "worklet-processor"
         );
 
-        audioSource.current
-          .connect(node)
-          .connect(audioContext.current.destination);
+        audioSource.current.connect(node).connect(gainNode).connect(audioDest);
 
         node.port.onmessage = onStreamData;
-
-        // setInterval(() => {
-        // console.log("disconnected done!");
-        // const b64 = saveAudio(mediaChunks.current, audioContext.current);
-        // console.log(b64);
-        // mediaChunks.current = [];
-        // // audioSource.current?.disconnect();
-        // appendData(b64);
-        // }, 5000);
       }
     }
   };

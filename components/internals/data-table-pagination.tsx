@@ -19,16 +19,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { deleteDocumentAction } from "@/lib/actions";
-
 import type { DocumentItemIncluded } from "@/prisma/db/document";
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
+  deleteDocumentAction: (data: DocumentItemIncluded[]) => void;
 }
 
 export function DataTablePagination<TData>({
   table,
+  deleteDocumentAction,
 }: DataTablePaginationProps<TData>) {
   return (
     <div className="flex flex-col lg:flex-row items-center justify-between px-2 gap-4">

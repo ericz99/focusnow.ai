@@ -2,11 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { NextResponse, NextRequest } from "next/server";
 import { type EmailOtpType } from "@supabase/supabase-js";
 
-import {
-  createNewUser,
-  checkIfHasUser,
-  UserCreatedItemIncluded,
-} from "@/prisma/db/user";
+import { createNewUser, checkIfHasUser } from "@/prisma/db/user";
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);

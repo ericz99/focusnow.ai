@@ -3,7 +3,7 @@ import React from "react";
 import { checkAuth } from "@/lib/auth";
 import { getDocuments } from "@/prisma/db/document";
 import { UploadButtonDocument } from "@/components/internals/upload-button-document";
-import { createDocumentAction } from "@/lib/actions";
+import { createDocumentAction, deleteDocumentAction } from "./actions";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
 
@@ -33,7 +33,11 @@ export default async function DocumentsPage() {
         </div>
       </div>
 
-      <DataTable columns={columns} data={documents ?? []} />
+      <DataTable
+        columns={columns}
+        data={documents ?? []}
+        deleteDocumentAction={deleteDocumentAction}
+      />
     </div>
   );
 }

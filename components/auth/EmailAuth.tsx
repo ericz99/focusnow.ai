@@ -19,7 +19,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import { createClient } from "@/lib/supabase/client";
 
-import { magicLinkSchema, MagicLinkSchema } from "@/lib/schemas/user";
+import { magicLinkSchema, MagicLinkSchema } from "@/prisma/db/user";
 
 export default function EmailAuth() {
   const supabase = createClient();
