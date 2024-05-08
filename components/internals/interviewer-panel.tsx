@@ -1,20 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
-import { useDataStore } from "@/lib/stores";
+import { useDataStore, useCopilotStore } from "@/lib/stores";
 
 export function InterviewerPanel() {
+  const { addQuestion } = useCopilotStore();
   const { incomingData, releaseData } = useDataStore();
   const [messages, setMessages] = useState<string[]>([]);
 
-  const checkIfQuestion = (text: string) => {
-    const regex = /\?$/;
+  const checkIfQuestion = useCallback(
+    (text: string) => {
+      const regex = /\?$/;
 
-    if (regex.test(text)) {
-      console.log("is a question!");
-    }
-  };
+      if (regex.test(text)) {
+        console.log("is a question!");
+        addQuestion(text);
+      }
+    },
+    [addQuestion]
+  );
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -42,16 +47,16 @@ export function InterviewerPanel() {
     }
 
     return () => abortController.abort();
-  }, [incomingData, setMessages, messages, releaseData]);
+  }, [incomingData, setMessages, messages, releaseData, checkIfQuestion]);
 
   return (
     <div className="w-[400px] h-full relative flex overflow-hidden">
-      <div className="w-full h-full rounded-lg border-2 border-b-2 border-solid border-zinc-900 py-8 px-4">
+      <div className="w-full h-full rounded-lg  py-8 px-4">
         <div className="w-full rounded-t-lg p-3 bg-zinc-900 text-lg text-white font-semibold">
           Interviewer
         </div>
 
-        <div className="flex flex-col gap-4 relative mt-4 h-full overflow-scroll p-4">
+        <div className="flex flex-col gap-4 relative h-full overflow-scroll p-4 border-b-2 border-x-2 border-solid">
           <div className="flex flex-col gap-4 relative pb-9 h-full">
             {messages.length && messages.map((m, idx) => <p key={idx}>{m}</p>)}
           </div>

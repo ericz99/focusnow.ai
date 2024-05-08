@@ -11,7 +11,7 @@ export default function MainDefaultLayout({
   return (
     <div className="overflow-hidden w-full h-screen relative flex">
       <Sidebar />
-      <div className="bg-[#faf4ea] flex flex-col relative h-full w-full">
+      <div className="flex flex-col relative h-full w-full bg-[#edf6f9]/30">
         <WelcomeMessage />
 
         {children}

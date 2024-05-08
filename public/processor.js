@@ -43,6 +43,7 @@ class WorkletProcessor extends AudioWorkletProcessor {
       energySum += data[i] * data[i];
     }
     const energy = energySum / data.length;
+    // console.log('energy', energy);
 
     // Check if the energy exceeds the threshold
     if (energy > this.energyThreshold) {

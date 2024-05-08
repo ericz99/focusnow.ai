@@ -26,7 +26,7 @@ import { DocumentItemIncluded } from "@/prisma/db/document";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  action: (data: DocumentItemIncluded[]) => void;
+  action?: (data: DocumentItemIncluded[]) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -100,11 +100,8 @@ export function DataTable<TData, TValue>({
                   className="h-24 text-center"
                 >
                   <h1 className="text-lg font-medium sm:text-xl">
-                    No files uploaded yet
+                    No job application yet!
                   </h1>
-                  <p className="text-xs text-muted-foreground sm:text-sm">
-                    Upload some files to get started!
-                  </p>
                 </TableCell>
               </TableRow>
             )}

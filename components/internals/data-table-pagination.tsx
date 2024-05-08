@@ -19,43 +19,45 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import type { DocumentItemIncluded } from "@/prisma/db/document";
-
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
-  deleteDocumentAction: (data: DocumentItemIncluded[]) => void;
+  action?: (data: any[]) => void;
 }
 
 export function DataTablePagination<TData>({
   table,
-  deleteDocumentAction,
+  action,
 }: DataTablePaginationProps<TData>) {
   return (
     <div className="flex flex-col lg:flex-row items-center justify-between px-2 gap-4">
       <div className="flex flex-1 gap-4 text-sm text-muted-foreground items-center">
-        <div className="text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
-        </div>
+        {action && (
+          <>
+            <div className="text-sm text-muted-foreground">
+              {table.getFilteredSelectedRowModel().rows.length} of{" "}
+              {table.getFilteredRowModel().rows.length} row(s) selected.
+            </div>
 
-        {table.getFilteredSelectedRowModel().rows.length > 0 && (
-          <div>
-            <Button
-              type="button"
-              variant={"outline"}
-              size={"sm"}
-              className="hover:bg-red-600 hover:text-white border border-solid border-red-500 text-red-500"
-              onClick={async (e) => {
-                e.preventDefault();
-                const _original = table
-                  .getFilteredSelectedRowModel()
-                  .rows.map((r) => r.original) as DocumentItemIncluded[];
-                await deleteDocumentAction(_original);
-              }}
-            >
-              Delete Selected
-            </Button>
-          </div>
+            {table.getFilteredSelectedRowModel().rows.length > 0 && (
+              <div>
+                <Button
+                  type="button"
+                  variant={"outline"}
+                  size={"sm"}
+                  className="hover:bg-red-600 hover:text-white border border-solid border-red-500 text-red-500"
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    const _original = table
+                      .getFilteredSelectedRowModel()
+                      .rows.map((r) => r.original) as any[];
+                    await action(_original);
+                  }}
+                >
+                  Delete Selected
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </div>
 

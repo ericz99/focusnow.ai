@@ -2,7 +2,7 @@ export const getMainRoute = () => {
   return [
     {
       label: "Dashboard",
-      path: `/app`,
+      path: `/app/dashboard`,
       isDisabled: false,
     },
     {
@@ -11,8 +11,8 @@ export const getMainRoute = () => {
       isDisabled: false,
     },
     {
-      label: "Code Copilot",
-      path: `/app/coding`,
+      label: "Jobs",
+      path: `/app/jobs`,
       isDisabled: false,
     },
     {

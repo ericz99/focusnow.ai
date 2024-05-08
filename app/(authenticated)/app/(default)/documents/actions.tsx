@@ -151,6 +151,8 @@ export const deleteDocumentAction = async (data: DocumentItemIncluded[]) => {
   const fileIds = data.map((d) => d!.fileId);
   const docIds = data.map((d) => d!.id);
 
+  console.log("docids", docIds);
+
   // # delete document w/ chunks
   await Promise.all(
     docIds.map(async (id) => {
@@ -160,5 +162,5 @@ export const deleteDocumentAction = async (data: DocumentItemIncluded[]) => {
 
   // # delete from uploadthings
   await utapi.deleteFiles(fileIds);
-  revalidatePath("/app/[teamId]/[assistantId]/document", "page");
+  revalidatePath("/app/documents", "page");
 };

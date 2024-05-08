@@ -99,6 +99,7 @@ export const createDocumentChunk = async (
   return null;
 };
 
+// TODO: document chunk is not deleting for some reason...
 export const deleteDocument = async (id: string) => {
   try {
     await Promise.all([
@@ -108,7 +109,7 @@ export const deleteDocument = async (id: string) => {
         },
         data: {
           documentChunks: {
-            deleteMany: {},
+            set: [],
           },
         },
         include: {

@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { LayoutDashboard, Code, BotMessageSquare, File } from "lucide-react";
+import {
+  LayoutDashboard,
+  Building2,
+  BotMessageSquare,
+  File,
+} from "lucide-react";
 import { usePathname } from "next/navigation";
 import { getMainRoute } from "@/lib/route";
 import { cn } from "@/lib/utils";
@@ -20,7 +25,7 @@ export function Sidebar() {
   }, [pathname]);
 
   return (
-    <div className="w-[350px] flex flex-col relative h-full p-4 bg-zinc-900">
+    <div className="w-[400px] flex flex-col relative h-full p-4 bg-white border-r border-solid border-zinc-200">
       <div className="flex-1 flex flex-col gap-1 relative">
         {routes.map((r, idx) => (
           <Link
@@ -29,17 +34,17 @@ export function Sidebar() {
             aria-disabled={r.isDisabled}
             tabIndex={r.isDisabled ? -1 : undefined}
             className={cn(
-              "text-base transition-all ease-in-out duration-75 rounded-md p-2 flex items-center gap-3 text-zinc-400",
+              "text-base transition-all font-normal ease-in-out duration-75 rounded-md p-2 flex items-center gap-3 text-zinc-400",
               `${
                 activeTab == r.path
-                  ? "text-white font-semibold"
-                  : "hover:bg-zinc-600 font-medium hover:text-white"
+                  ? "text-black"
+                  : "hover:bg-zinc-600 hover:text-white"
               }`,
               `${r.isDisabled ? "pointer-events-none" : ""}`
             )}
           >
             {r.label == "Dashboard" && <LayoutDashboard size={20} />}
-            {r.label == "Code Copilot" && <Code size={20} />}
+            {r.label == "Jobs" && <Building2 size={20} />}
             {r.label == "Interview Copilot" && <BotMessageSquare size={20} />}
             {r.label == "Documents" && <File size={20} />}
 

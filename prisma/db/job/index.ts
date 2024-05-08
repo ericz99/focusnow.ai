@@ -1,25 +1,24 @@
 import * as z from "zod";
 import { prisma } from "..";
 
-export const sessionSchema = z.object({
-  name: z.string(),
-  totalTime: z.string(),
-  resumeId: z.string(),
-  coverLetterId: z.string().optional(),
-  additionalInfo: z.string().optional(),
+export const jobSchema = z.object({
+  position: z.string(),
+  company: z.string(),
+  companyDetail: z.string(),
+  jobDescription: z.string(),
 });
 
-export type SessionSchema = z.infer<typeof sessionSchema>;
+export type JobSchema = z.infer<typeof jobSchema>;
 
-export const createSession = async (
-  data: SessionSchema & {
+export const createJob = async (
+  data: JobSchema & {
     userId: string;
   }
 ) => {
   const { userId, ...rest } = data;
 
   try {
-    const session = await prisma.session.create({
+    const job = await prisma.job.create({
       data: {
         ...rest,
         user: {
@@ -28,9 +27,12 @@ export const createSession = async (
           },
         },
       },
+      include: {
+        user: true,
+      },
     });
 
-    return session;
+    return job;
   } catch (error) {
     console.error("error occured", error);
   }
@@ -38,11 +40,11 @@ export const createSession = async (
   return null;
 };
 
-export type SessionItemIncluded = Awaited<ReturnType<typeof createSession>>;
+export type JobItemIncluded = Awaited<ReturnType<typeof createJob>>;
 
-export const getUserSession = async (id: string) => {
+export const getUserJobs = async (id: string) => {
   try {
-    const sessions = await prisma.session.findMany({
+    const jobs = await prisma.job.findMany({
       where: {
         user: {
           supaUserId: id,
@@ -50,7 +52,7 @@ export const getUserSession = async (id: string) => {
       },
     });
 
-    return sessions;
+    return jobs;
   } catch (error) {
     console.error("error occured", error);
   }
@@ -58,11 +60,14 @@ export const getUserSession = async (id: string) => {
   return null;
 };
 
-export const deleteSession = async (id: string) => {
+export const archiveJob = async (id: string) => {
   try {
-    await prisma.session.delete({
+    await prisma.job.update({
       where: {
         id,
+      },
+      data: {
+        isArchived: true,
       },
     });
   } catch (error) {

@@ -5,6 +5,7 @@ import { useAtBottom } from "./use-at-bottom";
 import { useScrollToBottom } from "./use-scroll-to-bottom";
 import { useIsomorphicLayoutEffect } from "./use-isomorphic-layout-effect";
 import { useMediaQuery } from "./use-media-query";
+import { useStreamableText } from "./use-streamable-text";
 
 export {
   useUser,
@@ -14,4 +15,5 @@ export {
   useScrollToBottom,
   useIsomorphicLayoutEffect,
   useMediaQuery,
+  useStreamableText,
 };

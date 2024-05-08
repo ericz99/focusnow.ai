@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { DocumentSchema } from "@/prisma/db/document";
+import { SessionSchema } from "@/prisma/db/session";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatDate } from "@/lib/utils";
 import { EllipsisVertical } from "lucide-react";
@@ -18,7 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 export const columns: ColumnDef<
-  DocumentSchema & {
+  SessionSchema & {
     createdAt: Date;
   }
 >[] = [
@@ -45,28 +45,12 @@ export const columns: ColumnDef<
     enableHiding: false,
   },
   {
-    accessorKey: "type",
-    header: "Document Type",
-    cell: ({ row }) => {
-      const data = row.original;
-      const type = data.type == "resume" ? "Resume" : "Cover Letter";
-
-      return <p>{type}</p>;
-    },
-  },
-  {
     accessorKey: "name",
     header: "Name",
   },
   {
-    accessorKey: "createdAt",
-    header: "Upload Date",
-    cell: ({ row }) => {
-      const data = row.original;
-      const dateString = formatDate(data.createdAt);
-
-      return <p>{dateString}</p>;
-    },
+    accessorKey: "additionalInfo",
+    header: "Name",
   },
   {
     id: "actions",

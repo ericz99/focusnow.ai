@@ -21,7 +21,7 @@ export default async function DocumentsPage() {
             Documents
           </h1>
           <h2 className="text-xs text-muted-foreground sm:text-sm">
-            Upload all your docs via the uploader.
+            Upload all your resumes / cover letters via the uploader.
           </h2>
         </div>
 
@@ -36,7 +36,7 @@ export default async function DocumentsPage() {
       <DataTable
         columns={columns}
         data={documents ?? []}
-        deleteDocumentAction={deleteDocumentAction}
+        action={deleteDocumentAction}
       />
     </div>
   );

@@ -38,7 +38,7 @@ export default function useMediaRecorder() {
   const audioContext = useRef<AudioContext | null>(null);
   const audioSource = useRef<MediaStreamAudioSourceNode | null>(null);
   const audioOutput = useRef<MediaDeviceInfo[]>([]);
-  const queue = useRef<Float32Array[][]>([]);
+  const lastSpeechDetectedTime = useRef<number | null>(null);
   const [_status, setStatus] = useState<StatusMessages>("idle");
   const [_error, setError] = useState<keyof typeof RecorderErrors>("NONE");
 
@@ -170,16 +170,30 @@ export default function useMediaRecorder() {
     console.log("speechDetected", speechDetected);
     mediaChunks.current.push(_buffer);
 
-    if (!speechDetected) {
-      console.log("no speech detected");
-      const b64 = saveAudio(mediaChunks.current, audioContext.current);
+    // # collect timestamp
+    if (
+      lastSpeechDetectedTime.current == null ||
+      lastSpeechDetectedTime.current < Date.now()
+    ) {
+      lastSpeechDetectedTime.current = Date.now();
+    }
 
-      if (b64) {
-        console.log(b64);
-        mediaChunks.current = [];
-        // audioSource.current?.disconnect();
-        appendData(b64);
-      }
+    if (!speechDetected && lastSpeechDetectedTime.current != null) {
+      console.log("lastSpeechDetectedTime", lastSpeechDetectedTime.current);
+
+      setTimeout(() => {
+        if (Date.now() - lastSpeechDetectedTime.current! > 500) {
+          console.log("should collect");
+          const b64 = saveAudio(mediaChunks.current, audioContext.current);
+
+          if (b64) {
+            console.log(b64);
+            mediaChunks.current = [];
+            // audioSource.current?.disconnect();
+            appendData(b64);
+          }
+        }
+      }, 500);
     }
   };
 

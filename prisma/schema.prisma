@@ -69,6 +69,7 @@ model User {
   credit       Credit?
   sessions     Session[]
   documents    Document[]
+  jobs         Job[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 }
@@ -135,17 +136,36 @@ model Credit {
   @@index([userId])
 }
 
+model Job {
+  id             String  @id @default(cuid())
+  position       String
+  company        String
+  companyDetail  String  @db.LongText
+  jobDescription String  @db.LongText
+  isArchived     Boolean @default(false)
+  userId         String
+  user           User    @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
 model Session {
-  id          String       @id @default(cuid())
-  name        String
-  isFinished  Boolean      @default(false)
-  totalTime   String
-  finishedAt  DateTime
-  transcripts Transcript[]
-  user        User         @relation(fields: [userId], references: [id])
-  userId      String
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id             String       @id @default(cuid())
+  name           String
+  isFinished     Boolean      @default(false)
+  totalTime      String
+  finishedAt     DateTime?
+  transcripts    Transcript[]
+  user           User         @relation(fields: [userId], references: [id])
+  userId         String
+  resumeId       String       @unique
+  coverLetterId  String?      @unique
+  additionalInfo String?      @db.LongText
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
   @@index([userId])
 }
