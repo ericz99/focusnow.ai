@@ -1,12 +1,19 @@
 import React from "react";
 
 import { checkAuth } from "@/lib/auth";
+import { getUserJobs } from "@/prisma/db/job";
 import { getDocuments } from "@/prisma/db/document";
+import { getUserSession } from "@/prisma/db/session";
 import { CopilotLauncher } from "@/components/internals/copilot-launcher";
+import { columns } from "./columns";
+import { DataTable } from "./data-table";
+import { createSessionActive } from "./actions";
 
 export default async function CopilotPage() {
   const user = await checkAuth();
   const documents = await getDocuments(user.id);
+  const jobs = await getUserJobs(user.id);
+  const sessions = await getUserSession(user.id);
 
   console.log("docs", documents);
 
@@ -23,9 +30,15 @@ export default async function CopilotPage() {
         </div>
 
         <div className="flex flex-1 justify-end">
-          <CopilotLauncher documents={documents ?? []} />
+          <CopilotLauncher
+            documents={documents ?? []}
+            jobs={jobs ?? []}
+            createSessionAction={createSessionActive}
+          />
         </div>
       </div>
+
+      <DataTable columns={columns} data={sessions ?? []} />
     </div>
   );
 }

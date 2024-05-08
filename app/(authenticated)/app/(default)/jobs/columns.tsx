@@ -32,10 +32,22 @@ export const columns: ColumnDef<
   {
     accessorKey: "companyDetail",
     header: "Company Detail",
+    cell: ({ row }) => {
+      const org = row.original;
+      const text = org.companyDetail;
+
+      return <p className="max-w-xs truncate">{text}</p>;
+    },
   },
   {
     accessorKey: "jobDescription",
     header: "Job Description",
+    cell: ({ row }) => {
+      const org = row.original;
+      const text = org.jobDescription;
+
+      return <p className="max-w-xs truncate">{text}</p>;
+    },
   },
 
   {

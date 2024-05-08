@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { toast } from "sonner";
 
 import {
   Dialog,
@@ -25,28 +25,32 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { DocumentItemIncluded } from "@/prisma/db/document";
+import { JobItemIncluded } from "@/prisma/db/job";
+import { SessionSchema, sessionSchema } from "@/prisma/db/session";
 
 interface CopilotLauncherProps {
   documents: DocumentItemIncluded[] | null;
+  jobs: JobItemIncluded[] | null;
+  createSessionAction: (data: SessionSchema) => Promise<void>;
 }
 
-const FormSchema = z.object({
-  resumeId: z.string(),
-  coverLetterId: z.string().optional(),
-  additionalInfo: z.string().optional(),
-});
+export function CopilotLauncher({
+  documents,
+  jobs,
+  createSessionAction,
+}: CopilotLauncherProps) {
+  const [showCopilotDialog, setShowCopilotDialog] = useState(false);
 
-export function CopilotLauncher({ documents }: CopilotLauncherProps) {
   const resumes = useMemo(() => {
     return documents?.filter((d) => d?.type == "resume");
   }, [documents]);
@@ -55,16 +59,19 @@ export function CopilotLauncher({ documents }: CopilotLauncherProps) {
     return documents?.filter((d) => d?.type == "cover_letter");
   }, [documents]);
 
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
+  const form = useForm<SessionSchema>({
+    resolver: zodResolver(sessionSchema),
   });
 
-  const onSubmit = async (values: z.infer<typeof FormSchema>) => {
-    // dotod
+  const onSubmit = async (values: SessionSchema) => {
+    await createSessionAction(values);
+    setShowCopilotDialog(false);
+    form.reset();
+    toast("Created interview session!");
   };
 
   return (
-    <Dialog>
+    <Dialog open={showCopilotDialog} onOpenChange={setShowCopilotDialog}>
       <DialogTrigger asChild>
         <Button
           variant="outline"
@@ -90,10 +97,25 @@ export function CopilotLauncher({ documents }: CopilotLauncherProps) {
               >
                 <FormField
                   control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name (Required) *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Session Name" {...field} />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="resumeId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Resume (Required)</FormLabel>
+                      <FormLabel>Resume (Required) *</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -139,6 +161,36 @@ export function CopilotLauncher({ documents }: CopilotLauncherProps) {
                             coverLetters.map((d) => (
                               <SelectItem key={d!.id} value={d!.id}>
                                 {d?.name}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="jobId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Job Application (Required) *</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select A Job Application" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {jobs &&
+                            jobs.length > 0 &&
+                            jobs.map((d) => (
+                              <SelectItem key={d!.id} value={d!.id}>
+                                {d?.position} @ {d?.company}
                               </SelectItem>
                             ))}
                         </SelectContent>

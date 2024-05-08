@@ -55,9 +55,9 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
 
-      <div className="border border-solid">
+      <div className="border border-solid border-zinc-200">
         <Table>
-          <TableHeader className="border-b border-solid border-zinc-400">
+          <TableHeader className="border-b border-solid border-zinc-200">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {

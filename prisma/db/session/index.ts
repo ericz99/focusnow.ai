@@ -3,9 +3,10 @@ import { prisma } from "..";
 
 export const sessionSchema = z.object({
   name: z.string(),
-  totalTime: z.string(),
+  totalTime: z.string().optional(),
   resumeId: z.string(),
   coverLetterId: z.string().optional(),
+  jobId: z.string(),
   additionalInfo: z.string().optional(),
 });
 
@@ -16,12 +17,13 @@ export const createSession = async (
     userId: string;
   }
 ) => {
-  const { userId, ...rest } = data;
+  const { userId, totalTime, ...rest } = data;
 
   try {
     const session = await prisma.session.create({
       data: {
         ...rest,
+        totalTime: !totalTime ? "45_Minute" : totalTime,
         user: {
           connect: {
             supaUserId: userId,

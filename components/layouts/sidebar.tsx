@@ -25,7 +25,7 @@ export function Sidebar() {
   }, [pathname]);
 
   return (
-    <div className="w-[400px] flex flex-col relative h-full p-4 bg-white border-r border-solid border-zinc-200">
+    <div className="w-[450px] flex flex-col relative h-full p-4 bg-white border-r border-solid border-zinc-200">
       <div className="flex-1 flex flex-col gap-1 relative">
         {routes.map((r, idx) => (
           <Link
@@ -37,8 +37,8 @@ export function Sidebar() {
               "text-base transition-all font-normal ease-in-out duration-75 rounded-md p-2 flex items-center gap-3 text-zinc-400",
               `${
                 activeTab == r.path
-                  ? "text-black"
-                  : "hover:bg-zinc-600 hover:text-white"
+                  ? "text-white bg-blue-500/80"
+                  : "hover:bg-blue-400/60 hover:text-white"
               }`,
               `${r.isDisabled ? "pointer-events-none" : ""}`
             )}

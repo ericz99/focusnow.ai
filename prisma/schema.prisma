@@ -163,6 +163,7 @@ model Session {
   userId         String
   resumeId       String       @unique
   coverLetterId  String?      @unique
+  jobId          String       @unique
   additionalInfo String?      @db.LongText
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt

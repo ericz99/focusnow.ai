@@ -2,8 +2,6 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { SessionSchema } from "@/prisma/db/session";
-import { Checkbox } from "@/components/ui/checkbox";
-import { formatDate } from "@/lib/utils";
 import { EllipsisVertical } from "lucide-react";
 
 import {
@@ -23,34 +21,18 @@ export const columns: ColumnDef<
   }
 >[] = [
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
     accessorKey: "name",
     header: "Name",
   },
   {
     accessorKey: "additionalInfo",
-    header: "Name",
+    header: "Additional Context",
+    cell: ({ row }) => {
+      const org = row.original;
+      const text = org.additionalInfo;
+
+      return <p className="max-w-xs truncate">{text}</p>;
+    },
   },
   {
     id: "actions",
@@ -68,8 +50,8 @@ export const columns: ColumnDef<
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Delete</DropdownMenuItem>
-              <DropdownMenuItem>Download</DropdownMenuItem>
+              <DropdownMenuItem>Launch</DropdownMenuItem>
+              <DropdownMenuItem>Archive</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

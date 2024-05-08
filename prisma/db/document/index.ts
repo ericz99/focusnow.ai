@@ -103,7 +103,7 @@ export const createDocumentChunk = async (
 export const deleteDocument = async (id: string) => {
   try {
     await Promise.all([
-      prisma.document.update({
+      await prisma.document.update({
         where: {
           id,
         },

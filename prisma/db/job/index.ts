@@ -50,6 +50,9 @@ export const getUserJobs = async (id: string) => {
           supaUserId: id,
         },
       },
+      include: {
+        user: true,
+      },
     });
 
     return jobs;

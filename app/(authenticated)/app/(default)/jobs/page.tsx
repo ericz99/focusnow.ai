@@ -4,6 +4,7 @@ import { getUserJobs } from "@/prisma/db/job";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import { JobCreator } from "@/components/internals/job-creator";
+import { createJobAction, archiveJobAction } from "./actions";
 
 export default async function JobsPage() {
   const user = await checkAuth();
@@ -24,7 +25,7 @@ export default async function JobsPage() {
         </div>
 
         <div className="flex flex-1 justify-end">
-          <JobCreator />
+          <JobCreator createJobAction={createJobAction} />
         </div>
       </div>
 

@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { toast } from "sonner";
 
 import {
   Dialog,
@@ -13,14 +13,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 import {
   Form,
@@ -38,17 +30,26 @@ import { Input } from "@/components/ui/input";
 
 import { JobSchema, jobSchema } from "@/prisma/db/job";
 
-export function JobCreator() {
+interface JobCreatorProps {
+  createJobAction: (data: JobSchema) => Promise<void>;
+}
+
+export function JobCreator({ createJobAction }: JobCreatorProps) {
+  const [showJobDialog, setShowJobDialog] = useState(false);
+
   const form = useForm<JobSchema>({
     resolver: zodResolver(jobSchema),
   });
 
   const onSubmit = async (values: JobSchema) => {
-    // dotod
+    await createJobAction(values);
+    setShowJobDialog(false);
+    form.reset();
+    toast("Created job application!");
   };
 
   return (
-    <Dialog>
+    <Dialog open={showJobDialog} onOpenChange={setShowJobDialog}>
       <DialogTrigger asChild>
         <Button
           variant="outline"
@@ -79,7 +80,7 @@ export function JobCreator() {
                     <FormItem>
                       <FormLabel>Position</FormLabel>
                       <FormControl>
-                        <Input placeholder="shadcn" {...field} />
+                        <Input placeholder="Software Engineer" {...field} />
                       </FormControl>
 
                       <FormMessage />
@@ -93,7 +94,7 @@ export function JobCreator() {
                     <FormItem>
                       <FormLabel>Company</FormLabel>
                       <FormControl>
-                        <Input placeholder="shadcn" {...field} />
+                        <Input placeholder="Google" {...field} />
                       </FormControl>
 
                       <FormMessage />
