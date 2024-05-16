@@ -92,7 +92,7 @@ model Price {
   product        Product             @relation(fields: [productId], references: [id])
   active         Boolean
   description    String?
-  unitAmount     BigInt
+  unitAmount     Float
   currency       String
   type           String              @default("recurring")
   interval       PricingPlanInterval @default(month)

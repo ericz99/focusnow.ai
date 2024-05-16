@@ -31,7 +31,6 @@ export async function createStripePortal(currentPath: string) {
 
     // # get user data
     const _user = await getUserData(user);
-    const teamId = _user!.teams[0].team.id;
 
     if (!_user) {
       throw new Error("Failed to get user data!");
@@ -44,7 +43,7 @@ export async function createStripePortal(currentPath: string) {
     try {
       const { url } = await stripe.billingPortal.sessions.create({
         customer: _user.stripeUserId,
-        return_url: getURL(`/app/${teamId}`),
+        return_url: getURL(`/app/dashboard`),
       });
 
       if (!url) {

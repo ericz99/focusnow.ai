@@ -13,8 +13,16 @@ import { cn } from "@/lib/utils";
 import { useUser } from "@/lib/hooks";
 import { ProfileToggle } from "@/components/internals/profile-toggle";
 import Link from "next/link";
+import { Separator } from "@/components/ui/separator";
+import type { SubscriptionItemIncluded } from "@/prisma/db/subscription";
+import { BillingFormButton } from "@/components/internals/billing-form-button";
+import { CreditUsage } from "@/components/internals/credit-usage";
 
-export function Sidebar() {
+interface SidebarProps {
+  sub: SubscriptionItemIncluded;
+}
+
+export function Sidebar({ sub }: SidebarProps) {
   const { signOut, userData } = useUser();
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const pathname = usePathname();
@@ -51,6 +59,13 @@ export function Sidebar() {
             {r.label}
           </Link>
         ))}
+
+        <Separator className="my-6" />
+
+        <div className="flex flex-col gap-4">
+          <CreditUsage sub={sub} />
+          <BillingFormButton sub={sub} />
+        </div>
       </div>
 
       <ProfileToggle userData={userData!} signOut={signOut} />

@@ -1,7 +1,6 @@
 import { prisma } from "..";
 import { stripe } from "@/lib/stripe/config";
 import { toDateTime } from "@/lib/utils";
-import Stripe from "stripe";
 
 export const manageSubscriptionStatusChange = async (
   subscriptionId: string,
@@ -29,15 +28,48 @@ export const manageSubscriptionStatusChange = async (
         trial_end,
         ended_at,
         created,
+        items,
       } = await stripe.subscriptions.retrieve(subscriptionId, {
         expand: ["default_payment_method"],
       });
 
-      await tx.subscription.update({
+      await tx.subscription.upsert({
         where: {
           id: subscriptionId,
         },
-        data: {
+        update: {
+          user: {
+            connect: {
+              id: user.id,
+            },
+          },
+          metadata,
+          status,
+          cancelAt: cancel_at ? toDateTime(cancel_at).toISOString() : null,
+          canceledAt: canceled_at
+            ? toDateTime(canceled_at).toISOString()
+            : null,
+          cancelAtPeriodEnd: cancel_at_period_end,
+          currentPeriodStart: current_period_start
+            ? toDateTime(current_period_start).toISOString()
+            : null,
+          currentPeriodEnd: current_period_end
+            ? toDateTime(current_period_end).toISOString()
+            : null,
+          trialStart: trial_start
+            ? toDateTime(trial_start).toISOString()
+            : null,
+          trialEnd: trial_end ? toDateTime(trial_end).toISOString() : null,
+          endAt: ended_at ? toDateTime(ended_at).toISOString() : null,
+          createdAt: toDateTime(created).toISOString(),
+        },
+        create: {
+          id: subscriptionId,
+          price: {
+            connect: {
+              id: items.data[0].price.id,
+            },
+          },
           user: {
             connect: {
               id: user.id,
