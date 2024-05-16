@@ -11,7 +11,7 @@ const welcomeMessages = [
 export function WelcomeMessage() {
   const rand = Math.floor(Math.random() * welcomeMessages.length);
   return (
-    <div className="bg-white py-4 px-6 relative">
+    <div className="bg-white py-4 px-6 relative border-b border-solid border-zinc-200">
       <p className="text-sm">{welcomeMessages[rand]}</p>
     </div>
   );

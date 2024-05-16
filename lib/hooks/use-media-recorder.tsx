@@ -157,7 +157,6 @@ export default function useMediaRecorder() {
         );
 
         audioSource.current.connect(node).connect(gainNode).connect(audioDest);
-
         node.port.onmessage = onStreamData;
       }
     }
@@ -182,18 +181,16 @@ export default function useMediaRecorder() {
       console.log("lastSpeechDetectedTime", lastSpeechDetectedTime.current);
 
       setTimeout(() => {
-        if (Date.now() - lastSpeechDetectedTime.current! > 500) {
+        if (Date.now() - lastSpeechDetectedTime.current! > 250) {
           console.log("should collect");
           const b64 = saveAudio(mediaChunks.current, audioContext.current);
 
           if (b64) {
-            console.log(b64);
             mediaChunks.current = [];
-            // audioSource.current?.disconnect();
             appendData(b64);
           }
         }
-      }, 500);
+      }, 250);
     }
   };
 

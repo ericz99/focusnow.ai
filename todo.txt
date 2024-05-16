@@ -40,3 +40,11 @@ interview simulator playground
 
 1. user click new session or using hotkey
 2. now it will record user session
+
+--
+
+1. stripe fixture - we need to add the credits and stuff for the subscription and ability to purchase more credit
+    - credit balance
+    - make sure user have enough credit to launch
+2. in the AI actions add all embedding and context
+3. 

@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       const { name, status, headers, message } = error;
       return NextResponse.json({ name, status, headers, message }, { status });
     } else {
-      throw error;
+      console.log("error occured", error);
     }
   }
 }

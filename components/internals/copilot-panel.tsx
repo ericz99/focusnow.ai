@@ -1,33 +1,19 @@
 "use client";
 
-import { useEffect } from "react";
-import { useActions, useUIState } from "ai/rsc";
-import { useCopilotStore } from "@/lib/stores";
-import { nanoid } from "nanoid";
+import { useMemo } from "react";
 import type { ClientMessage } from "@/lib/types";
 
-export function CopilotPanel() {
-  const { questions, removeQuestion } = useCopilotStore();
-  const { generateAnswer } = useActions();
-  const [messages, setMessages] = useUIState();
+import { Separator } from "@/components/ui/separator";
+import { EmptyScreen } from "@/components/internals/empty-screen";
 
-  useEffect(() => {
-    if (questions && questions.length) {
-      const getAnswer = async () => {
-        setMessages((cur: ClientMessage[]) => [
-          ...cur,
-          { id: nanoid(), role: "user", display: questions.at(-1) },
-        ]);
+interface CopilotPanelProps {
+  messages: ClientMessage[];
+}
 
-        const resp = await generateAnswer(questions.at(-1));
-        setMessages((cur: ClientMessage[]) => [...cur, resp]);
-        removeQuestion();
-      };
-
-      getAnswer();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [questions]);
+export function CopilotPanel({ messages }: CopilotPanelProps) {
+  const copilotMessagesOnly = useMemo(() => {
+    return messages.filter((m) => m.role == "assistant");
+  }, [messages]);
 
   return (
     <div className="flex-1 flex flex-col p-4 relative w-full h-full">
@@ -36,17 +22,30 @@ export function CopilotPanel() {
           Copilot
         </div>
 
-        <div className="flex flex-col gap-4 relative mt-4 h-full overflow-scroll p-4">
-          <div className="flex flex-col gap-4 relative pb-9 h-full">
-            {messages.map(
-              (message: ClientMessage) =>
-                message.role == "assistant" && (
-                  <li key={message.id}>{message.display}</li>
-                )
-            )}
-          </div>
+        <div className="h-full w-full flex flex-col relative">
+          <div className="flex-1 mt-8 overflow-hidden">
+            <div className="h-full overflow-y-auto w-full">
+              {copilotMessagesOnly.length ? (
+                <div className="flex flex-col pb-9 text-sm">
+                  {copilotMessagesOnly.map(
+                    (m: ClientMessage, index: number) => (
+                      <div key={m.id}>
+                        {m.display}
 
-          <div className="flex-1 w-full h-10" />
+                        {index < copilotMessagesOnly.length - 1 && (
+                          <Separator className="my-4" />
+                        )}
+                      </div>
+                    )
+                  )}
+                </div>
+              ) : (
+                <EmptyScreen />
+              )}
+
+              <div className="w-full h-2 flex-shrink-0" />
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -12,10 +12,13 @@ import {
   SpinnerMessage,
   BotMessage,
 } from "@/components/internals/chat-message";
+import { checkAuth } from "@/lib/auth";
 
 // Create the AI provider with the initial states and allowed actions
 export const AI = createAI<AIState, UIState>({
-  initialAIState: [] as AIState,
+  initialAIState: {
+    messages: [],
+  } as AIState,
   initialUIState: [] as UIState,
   actions: {
     generateAnswer,
@@ -23,23 +26,32 @@ export const AI = createAI<AIState, UIState>({
   onSetAIState: async ({ key, state, done }) => {
     "use server";
 
-    console.log("state", state);
+    const user = await checkAuth();
+    const { session, messages } = state;
+    // # save all ai answer here
+    console.log("messages", messages);
   },
 });
 
-async function generateAnswer(question: string) {
+async function generateAnswer({ question }: { question: string }) {
   "use server";
 
-  const history = getMutableAIState<typeof AI>();
+  const state = getMutableAIState<typeof AI>();
 
-  history.update([
-    ...history.get(),
-    {
-      id: nanoid(),
-      role: "user",
-      content: question,
-    },
-  ]);
+  // # update history messages with initial prompt
+  state.update({
+    ...state.get(),
+    messages: [
+      ...state.get().messages,
+      {
+        id: nanoid(),
+        role: "user",
+        content: question,
+      },
+    ],
+  });
+
+  // # create embedding then check for embedding
 
   let textStream: undefined | ReturnType<typeof createStreamableValue<string>>;
   let textNode: undefined | React.ReactNode;
@@ -59,7 +71,7 @@ async function generateAnswer(question: string) {
 
     `,
     messages: [
-      ...history.get().map((m: any) => ({
+      ...state.get().messages.map((m: any) => ({
         role: m.role,
         content: m.content,
         name: m.name,
@@ -74,14 +86,17 @@ async function generateAnswer(question: string) {
       }
 
       if (done) {
-        history.done([
-          ...history.get(),
-          {
-            id: nanoid(),
-            role: "assistant",
-            content,
-          },
-        ]);
+        state.done({
+          ...state.get(),
+          messages: [
+            ...state.get().messages,
+            {
+              id: nanoid(),
+              role: "assistant",
+              content,
+            },
+          ],
+        });
       } else {
         textStream.update(delta);
       }

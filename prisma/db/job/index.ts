@@ -63,6 +63,25 @@ export const getUserJobs = async (id: string) => {
   return null;
 };
 
+export const getJob = async (id: string) => {
+  try {
+    const jobs = await prisma.job.findFirst({
+      where: {
+        id,
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    return jobs;
+  } catch (error) {
+    console.error("error occured", error);
+  }
+
+  return null;
+};
+
 export const archiveJob = async (id: string) => {
   try {
     await prisma.job.update({

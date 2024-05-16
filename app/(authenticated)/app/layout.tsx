@@ -1,7 +1,6 @@
 import React from "react";
 
 import { checkAuth } from "@/lib/auth";
-import { AI } from "./actions";
 
 export default async function MainAppLayout({
   children,
@@ -11,5 +10,5 @@ export default async function MainAppLayout({
   // # check auth
   await checkAuth();
 
-  return <AI>{children}</AI>;
+  return <>{children}</>;
 }

@@ -125,6 +125,10 @@ export function saveAudio(chunks: any[], audioContext: any) {
     (prev: any, cur: string | any[]) => prev + cur.length,
     0
   );
+
+  // # nothing to be saved because there isn't any audio
+  if (!length || length == 0) return null;
+
   const outputBuffer = audioContext.createBuffer(1, length, 44100);
   const outputData = outputBuffer.getChannelData(0);
 
@@ -145,16 +149,4 @@ export function saveAudio(chunks: any[], audioContext: any) {
   const wav = audioBufferToWav(outputBuffer, {});
   const b64 = arrayBufferToBase64(wav);
   return b64;
-  //   const blob = new window.Blob([new DataView(wav)], {
-  //     type: "audio/wav",
-  //   });
-  //   const url = window.URL.createObjectURL(blob);
-
-  //   const anchor = document.createElement("a");
-  //   document.body.appendChild(anchor);
-  //   anchor.href = url;
-  //   anchor.download = "audio.wav";
-  //   anchor.click();
-  //   window.URL.revokeObjectURL(url);
-  //   document.body.removeChild(anchor);
 }

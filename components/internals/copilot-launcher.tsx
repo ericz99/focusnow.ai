@@ -146,10 +146,7 @@ export function CopilotLauncher({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Cover Letter</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
+                      <Select onValueChange={field.onChange}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select A Cover Letter" />

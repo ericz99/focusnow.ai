@@ -6,15 +6,6 @@ const CopilotSessionLayout = dynamic(
   { ssr: false }
 );
 
-export default function SessionPage({
-  params,
-}: {
-  params: {
-    sessionId: string;
-  };
-}) {
-  const { sessionId } = params;
-  console.log("new session", sessionId);
-
+export default function SessionPage() {
   return <CopilotSessionLayout />;
 }

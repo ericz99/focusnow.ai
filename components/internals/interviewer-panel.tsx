@@ -1,67 +1,51 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useMemo } from "react";
+import type { ClientMessage } from "@/lib/types";
 
-import { useDataStore, useCopilotStore } from "@/lib/stores";
+import { Separator } from "@/components/ui/separator";
+import { EmptyScreen } from "@/components/internals/empty-screen";
 
-export function InterviewerPanel() {
-  const { addQuestion } = useCopilotStore();
-  const { incomingData, releaseData } = useDataStore();
-  const [messages, setMessages] = useState<string[]>([]);
+interface InterviewerPanelProps {
+  messages: ClientMessage[];
+}
 
-  const checkIfQuestion = useCallback(
-    (text: string) => {
-      const regex = /\?$/;
-
-      if (regex.test(text)) {
-        console.log("is a question!");
-        addQuestion(text);
-      }
-    },
-    [addQuestion]
-  );
-
-  useEffect(() => {
-    const abortController = new AbortController();
-
-    if (incomingData && incomingData.length) {
-      const getTranscription = async () => {
-        const data = await fetch("/api/ai/transcribe", {
-          signal: abortController.signal,
-          method: "POST",
-          body: JSON.stringify({
-            audioData: incomingData.at(-1),
-          }),
-        });
-
-        const { transcription } = (await data.json()) as {
-          transcription: string;
-        };
-        console.log("transcription", transcription);
-        setMessages([...messages, transcription]);
-        releaseData();
-        checkIfQuestion(transcription);
-      };
-
-      getTranscription();
-    }
-
-    return () => abortController.abort();
-  }, [incomingData, setMessages, messages, releaseData, checkIfQuestion]);
+export function InterviewerPanel({ messages }: InterviewerPanelProps) {
+  const interviewerMessagesOnly = useMemo(() => {
+    return messages.filter((m) => m.role == "user");
+  }, [messages]);
 
   return (
-    <div className="w-[400px] h-full relative flex overflow-hidden">
-      <div className="w-full h-full rounded-lg  py-8 px-4">
-        <div className="w-full rounded-t-lg p-3 bg-zinc-900 text-lg text-white font-semibold">
+    <div className="flex-1 flex flex-col p-4 relative w-full h-full">
+      <div className="w-full h-full rounded-lg border-x-2 border-b-2 border-solid border-yellow-900">
+        <div className="w-full rounded-t-lg p-3 bg-yellow-900 text-lg text-white font-semibold">
           Interviewer
         </div>
 
-        <div className="flex flex-col gap-4 relative h-full overflow-scroll p-4 border-b-2 border-x-2 border-solid">
-          <div className="flex flex-col gap-4 relative pb-9 h-full">
-            {messages.length && messages.map((m, idx) => <p key={idx}>{m}</p>)}
-          </div>
+        <div className="h-full w-full flex flex-col relative">
+          <div className="flex-1 mt-8 overflow-hidden">
+            <div className="h-full overflow-y-auto w-full">
+              {interviewerMessagesOnly.length ? (
+                <div className="flex flex-col pb-9 text-sm">
+                  {interviewerMessagesOnly.map(
+                    (m: ClientMessage, index: number) => (
+                      <div key={m.id}>
+                        {m.display}
 
-          <div className="flex-1 w-full h-10" />
+                        {index < interviewerMessagesOnly.length - 1 && (
+                          <Separator className="my-4" />
+                        )}
+                      </div>
+                    )
+                  )}
+                </div>
+              ) : (
+                <EmptyScreen />
+              )}
+
+              <div className="w-full h-2 flex-shrink-0" />
+            </div>
+          </div>
         </div>
       </div>
     </div>

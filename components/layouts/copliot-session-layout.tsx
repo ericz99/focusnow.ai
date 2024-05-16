@@ -5,8 +5,6 @@ import dynamic from "next/dynamic";
 import { CircleCheck, CircleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSessionStore } from "@/lib/stores";
-import { InterviewerPanel } from "@/components/internals/interviewer-panel";
-import { CopilotPanel } from "@/components/internals/copilot-panel";
 import { SessionControl } from "@/components/internals/session-control";
 import { ChatPanel } from "@/components/internals/chat-panel";
 

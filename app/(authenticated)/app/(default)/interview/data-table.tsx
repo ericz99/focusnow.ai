@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import {
   ColumnDef,
@@ -19,14 +20,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { Button } from "@/components/ui/button";
+
 import { DataTableViewOptions } from "@/components/internals/data-table-view-options";
 import { DataTablePagination } from "@/components/internals/data-table-pagination";
 import { DocumentItemIncluded } from "@/prisma/db/document";
+import { SessionItemIncluded } from "@/prisma/db/session";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  action: (data: DocumentItemIncluded[]) => void;
+  action?: (data: DocumentItemIncluded[]) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -34,6 +38,7 @@ export function DataTable<TData, TValue>({
   data,
   action,
 }: DataTableProps<TData, TValue>) {
+  const router = useRouter();
   const [rowSelection, setRowSelection] = useState({});
 
   const table = useReactTable({
@@ -91,6 +96,25 @@ export function DataTable<TData, TValue>({
                       )}
                     </TableCell>
                   ))}
+
+                  <TableCell>
+                    <div className="flex flex-1 justify-center items-center gap-2 h-full">
+                      <Button
+                        variant={"default"}
+                        size={"sm"}
+                        onClick={() => {
+                          const org = row.original as SessionItemIncluded;
+                          router.push(`/app/session/${org?.id}`);
+                        }}
+                      >
+                        Launch
+                      </Button>
+
+                      <Button variant={"default"} size={"sm"}>
+                        Archive
+                      </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))
             ) : (

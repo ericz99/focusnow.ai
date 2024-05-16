@@ -1,5 +1,10 @@
 // https://developer.chrome.com/blog/audio-worklet
 
+// 0.00001561176831382764 - this is  when im typing and clicking in front of the mic not speaking
+// 0.0000000005
+// 0.0014702180095889513 - talking
+// 0.000003727135943205314 -- not takking
+
 class WorkletProcessor extends AudioWorkletProcessor {
   static BUFFER_SIZE = 4096;
   static SAMPLE_RATE = 44100; // Change this to your desired sample rate
@@ -9,9 +14,8 @@ class WorkletProcessor extends AudioWorkletProcessor {
     super();
     this.buffer = new Float32Array(WorkletProcessor.BUFFER_SIZE);
     this.byteWritten = 0;
-
-    // Parameters for VAD
-    this.energyThreshold = 0.0000000005; // Adjust this threshold according to your needs
+    this.energyThreshold = 0.0000005; // talking in the mic
+    this.speechDetected = false
   }
 
   // # credit1: https://www.reddit.com/r/learnjavascript/comments/1buqjr3/solution_web_audio_replacing/

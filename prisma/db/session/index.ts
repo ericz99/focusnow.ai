@@ -3,11 +3,11 @@ import { prisma } from "..";
 
 export const sessionSchema = z.object({
   name: z.string(),
-  totalTime: z.string().optional(),
+  totalTime: z.string().nullable(),
   resumeId: z.string(),
-  coverLetterId: z.string().optional(),
+  coverLetterId: z.string().nullable(),
   jobId: z.string(),
-  additionalInfo: z.string().optional(),
+  additionalInfo: z.string().nullable(),
 });
 
 export type SessionSchema = z.infer<typeof sessionSchema>;
@@ -53,6 +53,22 @@ export const getUserSession = async (id: string) => {
     });
 
     return sessions;
+  } catch (error) {
+    console.error("error occured", error);
+  }
+
+  return null;
+};
+
+export const getSession = async (id: string) => {
+  try {
+    const session = await prisma.session.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    return session;
   } catch (error) {
     console.error("error occured", error);
   }

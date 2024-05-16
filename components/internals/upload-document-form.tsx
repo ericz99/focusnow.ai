@@ -7,6 +7,16 @@ import { FileIcon, XIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
+import { Label } from "@/components/ui/label";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 export type UploadButtonFormProps = {
   action: (formData: FormData) => Promise<void>;
   userId: string;
@@ -19,6 +29,7 @@ export default function UploadButtonForm({
   const [acceptedFiles, setAcceptedFiles] = useState<File[]>([]);
   const [rejectedFiles, setRejectedFiles] = useState<FileRejection[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [type, setType] = useState<"resume" | "cover_letter">("resume");
 
   const onDrop = useCallback(
     (accepts: File[], rejects: FileRejection[]) => {
@@ -48,7 +59,7 @@ export default function UploadButtonForm({
     const formData = new FormData();
     acceptedFiles.forEach((file) => formData.append("files", file));
     formData.append("userId", userId);
-    formData.append("type", "resume");
+    formData.append("type", type);
     setIsUploading(true);
     await action(formData);
     setIsUploading(false);
@@ -61,6 +72,23 @@ export default function UploadButtonForm({
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-4">
+      <div className="my-2">
+        <Label className="mb-4">Document Type</Label>
+
+        <Select
+          onValueChange={(v) => setType(v as "resume" | "cover_letter")}
+          value={type}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Type of document" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="resume">Resume</SelectItem>
+            <SelectItem value="cover_letter">Cover Letter</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       <div {...getRootProps({ className: "dropzone" })}>
         <input {...getInputProps} className="hidden" />
         <p className="text-sm">
