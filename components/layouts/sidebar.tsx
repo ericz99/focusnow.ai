@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, memo } from "react";
 import {
   LayoutDashboard,
   Building2,
@@ -17,12 +17,14 @@ import { Separator } from "@/components/ui/separator";
 import type { SubscriptionItemIncluded } from "@/prisma/db/subscription";
 import { BillingFormButton } from "@/components/internals/billing-form-button";
 import { CreditUsage } from "@/components/internals/credit-usage";
+import type { PriceItemIncluded } from "@/prisma/db/price";
 
 interface SidebarProps {
   sub: SubscriptionItemIncluded;
+  pricings: PriceItemIncluded[];
 }
 
-export function Sidebar({ sub }: SidebarProps) {
+export function Sidebar({ sub, pricings }: SidebarProps) {
   const { signOut, userData } = useUser();
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const pathname = usePathname();
@@ -31,6 +33,10 @@ export function Sidebar({ sub }: SidebarProps) {
   useEffect(() => {
     setActiveTab(pathname);
   }, [pathname]);
+
+  const creditOnlyPrice = useMemo(() => {
+    return pricings.find((price) => price?.type == "one_time");
+  }, [pricings]);
 
   return (
     <div className="w-[450px] flex flex-col relative h-full p-4 bg-white border-r border-solid border-zinc-200">
@@ -63,7 +69,7 @@ export function Sidebar({ sub }: SidebarProps) {
         <Separator className="my-6" />
 
         <div className="flex flex-col gap-4">
-          <CreditUsage sub={sub} />
+          <CreditUsage sub={sub} price={creditOnlyPrice} />
           <BillingFormButton sub={sub} />
         </div>
       </div>

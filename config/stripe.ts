@@ -23,6 +23,19 @@ export const SEED_PLANS = [
       currency: "USD",
     },
   },
+  {
+    name: "Credit Only",
+    id: "prod_Q7gopzxtqzrSUu",
+    image: "https://placehold.co/600x400",
+    active: true,
+    price: {
+      id: "price_1PHRQOJ58A1yplC4mmhC77rJ",
+      active: true,
+      unitAmount: 1.0,
+      currency: "USD",
+      type: "one_time" as "one_time" | "recurring",
+    },
+  },
 ];
 
 export const PLANS = [

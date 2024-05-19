@@ -1,4 +1,9 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+  webpack(config) {
+    config.externals.push({ vectordb: "vectordb" });
+    return config;
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

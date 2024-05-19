@@ -13,7 +13,7 @@ interface BillingFormButtonProps {
 export function BillingFormButton({ sub }: BillingFormButtonProps) {
   return (
     <div className="flex items-center justify-center w-full">
-      <Button variant={"secondary"} className="h-14 w-full" size={"lg"} asChild>
+      <Button variant={"secondary"} className="h-16 w-full" size={"lg"} asChild>
         <Link href="/#">
           <div className="flex flex-col flex-1">
             Manage Subscription

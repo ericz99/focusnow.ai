@@ -82,6 +82,10 @@ export async function POST(req: Request) {
               checkoutSession.customer as string
             );
           }
+
+          if (checkoutSession.mode == "payment") {
+            console.log("made new payment");
+          }
           break;
         default:
           throw new Error("Unhandled relevant event!");

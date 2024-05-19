@@ -1,4 +1,5 @@
 import { openai } from "@ai-sdk/openai";
+import { embed } from "ai";
 import {
   createAI,
   getMutableAIState,
@@ -13,6 +14,7 @@ import {
   BotMessage,
 } from "@/components/internals/chat-message";
 import { checkAuth } from "@/lib/auth";
+import { getClient } from "@/core/db/lance";
 
 // Create the AI provider with the initial states and allowed actions
 export const AI = createAI<AIState, UIState>({
@@ -37,6 +39,8 @@ async function generateAnswer({ question }: { question: string }) {
   "use server";
 
   const state = getMutableAIState<typeof AI>();
+  const db = await getClient();
+  const table = await db.openTable("doc-table");
 
   // # update history messages with initial prompt
   state.update({
@@ -52,6 +56,17 @@ async function generateAnswer({ question }: { question: string }) {
   });
 
   // # create embedding then check for embedding
+  const { embedding } = await embed({
+    model: openai.embedding("text-embedding-3-large"),
+    value: question,
+  });
+
+  // # query embedding data
+  const context = await table.search(embedding).execute();
+
+  let allContentJointed = "";
+
+  console.log("context", context);
 
   let textStream: undefined | ReturnType<typeof createStreamableValue<string>>;
   let textNode: undefined | React.ReactNode;

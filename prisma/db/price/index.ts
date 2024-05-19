@@ -1,6 +1,43 @@
 import { prisma } from "..";
 import { Stripe } from "stripe";
 
+export const getPrices = async () => {
+  try {
+    const prices = await prisma.price.findMany({
+      include: {
+        subs: true,
+      },
+    });
+
+    return prices;
+  } catch (error) {
+    console.error("error occured", error);
+  }
+
+  return null;
+};
+
+export const getPrice = async (id: string) => {
+  try {
+    const price = await prisma.price.findFirst({
+      where: {
+        id,
+      },
+      include: {
+        subs: true,
+      },
+    });
+
+    return price;
+  } catch (error) {
+    console.error("error occured", error);
+  }
+
+  return null;
+};
+
+export type PriceItemIncluded = Awaited<ReturnType<typeof getPrice>>;
+
 export const upsertPrice = async (data: Stripe.Price) => {
   try {
     const { id, unit_amount: unitAmount, recurring, product, ...rest } = data;

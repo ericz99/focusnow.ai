@@ -1,13 +1,17 @@
 console.log("Focusnow.ai - screenshot.js is running on this tab!");
 
 function downloadScreenshot(dataUri) {
-  const link = document.createElement("a");
-  link.href = dataUri;
-  link.download = "sample";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  console.log('Downloaded!')
+  console.log('datauri', dataUri)
+
+  fetch('http://localhost:3000/api/image', {
+    method: "POST",
+    headers: {
+      "Access-Control-Allow-Origin":"*"
+    },
+    body: JSON.stringify({
+      data: dataUri
+    })
+  }).catch((err) => console.error(err))
 }
 
 // add listender for messages

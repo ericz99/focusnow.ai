@@ -64,8 +64,11 @@ export async function createStripePortal(currentPath: string) {
 
 export async function checkoutWithStripe(
   price: Price,
-  redirectPath: string
-): Promise<CheckoutResponse | void> {
+  redirectPath: string,
+  options?: {
+    quantity: number;
+  }
+): Promise<CheckoutResponse> {
   try {
     const supabase = createClient();
     const {
@@ -100,7 +103,7 @@ export async function checkoutWithStripe(
       line_items: [
         {
           price: price.id,
-          quantity: 1,
+          quantity: options?.quantity ?? 1,
         },
       ],
       cancel_url: getURL(),
@@ -145,4 +148,9 @@ export async function checkoutWithStripe(
       };
     }
   }
+
+  return {
+    sessionId: undefined,
+    errorRedirect: undefined,
+  };
 }

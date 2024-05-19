@@ -58,6 +58,11 @@ enum DocumentType {
   cover_letter
 }
 
+enum PricingType {
+  one_time
+  recurring
+}
+
 model User {
   id           String         @id @default(cuid())
   supaUserId   String?        @unique
@@ -94,7 +99,7 @@ model Price {
   description    String?
   unitAmount     Float
   currency       String
-  type           String              @default("recurring")
+  type           PricingType         @default(recurring)
   interval       PricingPlanInterval @default(month)
   intervalCount  Int                 @default(1)
   trialPeriodDay Int

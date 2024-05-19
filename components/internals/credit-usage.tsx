@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import { SubscriptionItemIncluded } from "@/prisma/db/subscription";
-import { AlertCircle, Plus } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CreditForm } from "@/components/internals/credit-form";
 
 import {
   Tooltip,
@@ -12,12 +12,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { PriceItemIncluded } from "@/prisma/db/price";
 
 interface CreditUsageProps {
   sub: SubscriptionItemIncluded;
+  price?: PriceItemIncluded;
 }
 
-export function CreditUsage({ sub }: CreditUsageProps) {
+export function CreditUsage({ sub, price }: CreditUsageProps) {
   return (
     <div className="flex items-center gap-4 relative w-full">
       <div className="w-full flex-1 flex items-center text-sm">
@@ -41,11 +43,7 @@ export function CreditUsage({ sub }: CreditUsageProps) {
         Available Credit: <strong className="ml-2">{!sub ? "0" : "100"}</strong>
       </div>
 
-      <Button variant={"link"} size={"icon"} asChild>
-        <Link href={"/#"}>
-          <Plus size={20} />
-        </Link>
-      </Button>
+      <CreditForm price={price} />
     </div>
   );
 }
