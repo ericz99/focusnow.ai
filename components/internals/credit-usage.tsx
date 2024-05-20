@@ -17,9 +17,10 @@ import { PriceItemIncluded } from "@/prisma/db/price";
 interface CreditUsageProps {
   sub: SubscriptionItemIncluded;
   price?: PriceItemIncluded;
+  credit: number;
 }
 
-export function CreditUsage({ sub, price }: CreditUsageProps) {
+export function CreditUsage({ sub, price, credit }: CreditUsageProps) {
   return (
     <div className="flex items-center gap-4 relative w-full">
       <div className="w-full flex-1 flex items-center text-sm">
@@ -40,7 +41,7 @@ export function CreditUsage({ sub, price }: CreditUsageProps) {
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-        Available Credit: <strong className="ml-2">{!sub ? "0" : "100"}</strong>
+        Available Credit: <strong className="ml-2">{credit}</strong>
       </div>
 
       <CreditForm price={price} />

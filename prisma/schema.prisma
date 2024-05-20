@@ -64,19 +64,20 @@ enum PricingType {
 }
 
 model User {
-  id           String         @id @default(cuid())
-  supaUserId   String?        @unique
-  stripeUserId String?        @unique
-  name         String?
-  email        String         @unique
-  password     String?
-  subs         Subscription[]
-  credit       Credit?
-  sessions     Session[]
-  documents    Document[]
-  jobs         Job[]
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  id             String           @id @default(cuid())
+  supaUserId     String?          @unique
+  stripeUserId   String?          @unique
+  name           String?
+  email          String           @unique
+  password       String?
+  subs           Subscription[]
+  credit         Int              @default(0)
+  sessions       Session[]
+  documents      Document[]
+  jobs           Job[]
+  paymentHistory PaymentHistory[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 }
 
 model Product {
@@ -130,15 +131,13 @@ model Subscription {
   updatedAt          DateTime           @updatedAt
 }
 
-model Credit {
-  id              String   @id @default(cuid())
-  creditRemaining Int      @default(0)
-  user            User?    @relation(fields: [userId], references: [id])
-  userId          String?  @unique
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@index([userId])
+model PaymentHistory {
+  id                      String   @id @default(cuid())
+  stripeCheckoutSessionId String   @unique
+  user                    User     @relation(fields: [userId], references: [id])
+  userId                  String
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 }
 
 model Job {

@@ -22,9 +22,10 @@ import type { PriceItemIncluded } from "@/prisma/db/price";
 interface SidebarProps {
   sub: SubscriptionItemIncluded;
   pricings: PriceItemIncluded[];
+  credit: number;
 }
 
-export function Sidebar({ sub, pricings }: SidebarProps) {
+export function Sidebar({ sub, pricings, credit }: SidebarProps) {
   const { signOut, userData } = useUser();
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const pathname = usePathname();
@@ -69,7 +70,7 @@ export function Sidebar({ sub, pricings }: SidebarProps) {
         <Separator className="my-6" />
 
         <div className="flex flex-col gap-4">
-          <CreditUsage sub={sub} price={creditOnlyPrice} />
+          <CreditUsage sub={sub} price={creditOnlyPrice} credit={credit} />
           <BillingFormButton sub={sub} />
         </div>
       </div>

@@ -20,6 +20,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 import { Button } from "@/components/ui/button";
 
 import { DataTableViewOptions } from "@/components/internals/data-table-view-options";
@@ -99,16 +111,42 @@ export function DataTable<TData, TValue>({
 
                   <TableCell>
                     <div className="flex flex-1 justify-center items-center gap-2 h-full">
-                      <Button
-                        variant={"default"}
-                        size={"sm"}
-                        onClick={() => {
-                          const org = row.original as SessionItemIncluded;
-                          router.push(`/app/session/${org?.id}`);
-                        }}
-                      >
-                        Launch
-                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant={"default"} size={"sm"}>
+                            Launch
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Launching Interview Copilot
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              You are about to start an Interview Copilot
+                              session.
+                              <div className="flex flex-col gap-4 mt-4">
+                                Please review the details below:
+                                <ul className="list-disc ml-4">
+                                  <li>Session: 25 Credits</li>
+                                  <li>Time Limit: 60 Minutes</li>
+                                </ul>
+                              </div>
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => {
+                                const org = row.original as SessionItemIncluded;
+                                router.push(`/app/session/${org?.id}`);
+                              }}
+                            >
+                              Continue
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
 
                       <Button variant={"default"} size={"sm"}>
                         Archive

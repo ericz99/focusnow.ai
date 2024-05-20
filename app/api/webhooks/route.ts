@@ -4,6 +4,8 @@ import { stripe } from "@/lib/stripe/config";
 import { upsertPrice, deletePrice } from "@/prisma/db/price";
 import { upsertProduct, deleteProduct } from "@/prisma/db/product";
 import { manageSubscriptionStatusChange } from "@/prisma/db/subscription";
+import { createPayment } from "@/prisma/db/payment";
+import { addCreditToUser } from "@/prisma/db/credit";
 
 const relevantEvents = new Set([
   "product.created",
@@ -85,6 +87,23 @@ export async function POST(req: Request) {
 
           if (checkoutSession.mode == "payment") {
             console.log("made new payment");
+            console.log("checkoutsession", checkoutSession);
+
+            await createPayment({
+              userId: checkoutSession.customer as string,
+              sessionId: checkoutSession.id,
+            });
+
+            // # get checkout items
+            const item = await stripe.checkout.sessions.listLineItems(
+              checkoutSession.id
+            );
+
+            // # update credit
+            await addCreditToUser({
+              userId: checkoutSession.customer as string,
+              qty: item.data[0].quantity ?? 1,
+            });
           }
           break;
         default:
