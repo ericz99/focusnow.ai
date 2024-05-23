@@ -33,6 +33,8 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import { Button } from "@/components/ui/button";
+import { useCountdown } from "@/lib/hooks";
+import { formatTime } from "@/lib/utils";
 
 import { DataTableViewOptions } from "@/components/internals/data-table-view-options";
 import { DataTablePagination } from "@/components/internals/data-table-pagination";
@@ -45,13 +47,22 @@ interface DataTableProps<TData, TValue> {
   action?: (data: DocumentItemIncluded[]) => void;
 }
 
+const endTime = 5 * 60 * 1000; // 5 minutes in milliseconds
+
 export function DataTable<TData, TValue>({
   columns,
   data,
   action,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
+  const [openDialog, setOpenDialog] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
+
+  const timeLeft = useCountdown(openDialog, endTime, {
+    interval: 1000,
+    onTick: () => console.log("tick"),
+    onComplete: () => setOpenDialog(false),
+  });
 
   const table = useReactTable({
     data,
@@ -111,7 +122,10 @@ export function DataTable<TData, TValue>({
 
                   <TableCell>
                     <div className="flex flex-1 justify-center items-center gap-2 h-full">
-                      <AlertDialog>
+                      <AlertDialog
+                        open={openDialog}
+                        onOpenChange={setOpenDialog}
+                      >
                         <AlertDialogTrigger asChild>
                           <Button variant={"default"} size={"sm"}>
                             Launch
@@ -120,11 +134,20 @@ export function DataTable<TData, TValue>({
                         <AlertDialogContent>
                           <AlertDialogHeader>
                             <AlertDialogTitle>
-                              Launching Interview Copilot
+                              <div className="flex gap-4 justify-between mb-8">
+                                Launching Interview Copilot
+                                <h1 className="text-5xl font-bold">
+                                  {formatTime(timeLeft)}
+                                </h1>
+                              </div>
                             </AlertDialogTitle>
                             <AlertDialogDescription>
                               You are about to start an Interview Copilot
-                              session.
+                              session. If you wish to start, please click{" "}
+                              <strong>continue</strong>, or click{" "}
+                              <strong>cancel</strong> / <strong>wait</strong>{" "}
+                              for timer to expired to cancel session without
+                              consuming credit.
                               <div className="flex flex-col gap-4 mt-4">
                                 Please review the details below:
                                 <ul className="list-disc ml-4">
@@ -135,7 +158,11 @@ export function DataTable<TData, TValue>({
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogCancel
+                              onClick={() => setOpenDialog(false)}
+                            >
+                              Cancel
+                            </AlertDialogCancel>
                             <AlertDialogAction
                               onClick={() => {
                                 const org = row.original as SessionItemIncluded;

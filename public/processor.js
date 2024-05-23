@@ -14,7 +14,7 @@ class WorkletProcessor extends AudioWorkletProcessor {
     super();
     this.buffer = new Float32Array(WorkletProcessor.BUFFER_SIZE);
     this.byteWritten = 0;
-    this.energyThreshold = 0.0000005; // talking in the mic
+    this.energyThreshold = 0.000000005; // talking in the mic
     this.speechDetected = false
   }
 

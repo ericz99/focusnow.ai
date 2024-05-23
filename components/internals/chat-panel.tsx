@@ -7,8 +7,6 @@ import { useDataStore } from "@/lib/stores";
 import type { ClientMessage } from "@/lib/types";
 import { useScrollToBottom } from "@/lib/hooks";
 import { UserMessage } from "@/components/internals/chat-message";
-import { Separator } from "@/components/ui/separator";
-import { EmptyScreen } from "@/components/internals/empty-screen";
 import { CopilotPanel } from "@/components/internals/copilot-panel";
 import { InterviewerPanel } from "@/components/internals/interviewer-panel";
 
@@ -16,7 +14,7 @@ export function ChatPanel() {
   const $scrollToBottomRef = useRef<HTMLDivElement>(null);
   const [_isBottom, setBottomRef] = useScrollToBottom(false);
   const { incomingData, releaseData } = useDataStore();
-  const { generateAnswer } = useActions();
+  const { generateResponse } = useActions();
   const [messages, setMessages] = useUIState();
 
   useEffect(() => {
@@ -25,33 +23,20 @@ export function ChatPanel() {
     }
   }, [messages]);
 
-  const checkIfQuestion = useCallback(
-    async (text: string) => {
-      if (text.endsWith("?")) {
-        console.log("is a question!");
-
-        const resp = await generateAnswer({
-          question: text,
-        });
-
-        setMessages((cur: ClientMessage[]) => [...cur, resp]);
-      }
-    },
-    [generateAnswer, setMessages]
-  );
-
   useEffect(() => {
     if (incomingData && incomingData.length) {
       console.log("incoming data???");
+      console.log(incomingData);
 
       const getTranscription = async () => {
         try {
+          const formData = new FormData();
+          formData.append("audioData", incomingData.at(-1)!);
+
           const data = await fetch("/api/ai/transcribe", {
             // signal: abortController.signal,
             method: "POST",
-            body: JSON.stringify({
-              audioData: incomingData.at(-1),
-            }),
+            body: formData,
           });
 
           const { transcription } = (await data.json()) as {
@@ -60,16 +45,57 @@ export function ChatPanel() {
 
           console.log("transcription", transcription);
 
-          setMessages((cur: ClientMessage[]) => [
-            ...cur,
-            {
+          if (transcription !== "") {
+            const cloned = [...messages];
+            const userMessage = cloned.find(
+              (d: ClientMessage) => d.role == "user"
+            ) as ClientMessage;
+
+            const data = {
               id: nanoid(),
               role: "user",
+              value: transcription,
               display: <UserMessage>{transcription}</UserMessage>,
-            },
-          ]);
+            };
 
-          await checkIfQuestion(transcription);
+            if (!userMessage) {
+              // # add initial message
+              setMessages((cur: ClientMessage[]) => [...cur, data]);
+            } else {
+              // # update user message
+              userMessage.value += transcription + " ";
+
+              // # update messages
+              setMessages((cur: ClientMessage[]) => [
+                userMessage,
+                ...cur.filter((c) => c.role == "assistant"),
+              ]);
+            }
+
+            // setMessages((cur: ClientMessage[]) => [
+            //   ...cur,
+            //   {
+            // id: nanoid(),
+            // role: "user",
+            // display: <UserMessage>{transcription}</UserMessage>,
+            //   },
+            // ]);
+
+            /**
+             *
+             * no need to check if tis a question ,instead just keep answering question but do no repeat answer if
+             * the AI already have responded with that previous question
+             *
+             * also, the AI should only say what  they feel about the context of the transcription, so
+             * it does not have to be a question format, instead just based on the context of the transcription
+             *
+             */
+            const resp = await generateResponse({
+              prompt: data.value,
+            });
+
+            setMessages((cur: ClientMessage[]) => [...cur, resp]);
+          }
         } catch (error) {
           console.error("Error fetching transcription:", error);
         }
@@ -80,36 +106,10 @@ export function ChatPanel() {
     }
 
     // return () => abortController.abort();
-  }, [incomingData, setMessages, messages, releaseData, checkIfQuestion]);
+  }, [incomingData, setMessages, messages, releaseData]);
 
   return (
     <div className="container mx-auto max-w-8xl p-4 relative h-full w-full flex">
-      {/* <div className="h-full w-full flex flex-col border border-solid border-zinc-300 relative">
-        <div className="flex-1 mt-8 overflow-hidden">
-          <div className="h-full overflow-y-auto w-full">
-            {messages.length ? (
-              <div className="flex flex-col pb-9 text-sm">
-                {messages.map((m: ClientMessage, index: number) => (
-                  <div key={m.id}>
-                    {m.display}
-
-                    {index < messages.length - 1 && (
-                      <Separator className="my-4" />
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <EmptyScreen />
-            )}
-
-            <div ref={$scrollToBottomRef} />
-            <div ref={setBottomRef} />
-            <div className="w-full h-2 flex-shrink-0" />
-          </div>
-        </div>
-      </div> */}
-
       <InterviewerPanel messages={messages} />
       <CopilotPanel messages={messages} />
     </div>

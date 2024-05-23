@@ -5,6 +5,7 @@ import type { ClientMessage } from "@/lib/types";
 
 import { Separator } from "@/components/ui/separator";
 import { EmptyScreen } from "@/components/internals/empty-screen";
+import { UserMessage } from "@/components/internals/chat-message";
 
 interface InterviewerPanelProps {
   messages: ClientMessage[];
@@ -30,7 +31,7 @@ export function InterviewerPanel({ messages }: InterviewerPanelProps) {
                   {interviewerMessagesOnly.map(
                     (m: ClientMessage, index: number) => (
                       <div key={m.id}>
-                        {m.display}
+                        <UserMessage>{m.value}</UserMessage>
 
                         {index < interviewerMessagesOnly.length - 1 && (
                           <Separator className="my-4" />

@@ -23,7 +23,7 @@ export const AI = createAI<AIState, UIState>({
   } as AIState,
   initialUIState: [] as UIState,
   actions: {
-    generateAnswer,
+    generateResponse,
   },
   onSetAIState: async ({ key, state, done }) => {
     "use server";
@@ -35,12 +35,17 @@ export const AI = createAI<AIState, UIState>({
   },
 });
 
-async function generateAnswer({ question }: { question: string }) {
+async function generateResponse({ prompt }: { prompt: string }) {
   "use server";
 
   const state = getMutableAIState<typeof AI>();
-  const db = await getClient();
-  const table = await db.openTable("doc-table");
+  const { session } = state.get();
+
+  if (!session) {
+    throw new Error("Session not found!");
+  }
+
+  const { job, additionalInfo } = session;
 
   // # update history messages with initial prompt
   state.update({
@@ -50,39 +55,48 @@ async function generateAnswer({ question }: { question: string }) {
       {
         id: nanoid(),
         role: "user",
-        content: question,
+        content: prompt,
       },
     ],
   });
 
-  // # create embedding then check for embedding
-  const { embedding } = await embed({
-    model: openai.embedding("text-embedding-3-large"),
-    value: question,
-  });
-
-  // # query embedding data
-  const context = await table.search(embedding).execute();
-
-  let allContentJointed = "";
-
-  console.log("context", context);
-
   let textStream: undefined | ReturnType<typeof createStreamableValue<string>>;
   let textNode: undefined | React.ReactNode;
+
+  const initialContext = `
+    You are applying for this job: \n
+
+    Position: ${job?.position} \n
+
+    Company: ${job?.company} \n
+
+    Company Detail: ${job?.companyDetail} \n
+
+    Job Description: ${job?.jobDescription} \n
+
+    Additional Information about this interview: ${additionalInfo} \n
+  `;
 
   const result = await streamUI({
     model: openai("gpt-3.5-turbo"),
     initial: <SpinnerMessage />,
     system: `
 
-    {SYSTEM}: You are an AI interview copilot that will help me answer all question that is related to this behavioral interview. \n
+    <initial-system-prompt>: You are an AI interview copilot that will help me answer all question that is related to this behavioral / technical interview. Please use the {CONTEXT} below, if empty string, then ignore context. </initial-system-prompt> \n
 
+    <context>: ${initialContext} </context> \n
+
+    <main-goal> \n
+    
     You are an experienced developer that is going through a behavioral interview. \n
 
     For each questions please come up with multiple short plain and simple answers that can be answer to that question. \n
 
     Please return each unique answers in a bullet point form, and only generate up to 10 answers. \n
+
+    If you already made a response, on the prompt avoid making additional response. \n
+
+    </main-goal> \n
 
     `,
     messages: [
@@ -123,6 +137,7 @@ async function generateAnswer({ question }: { question: string }) {
   return {
     id: nanoid(),
     role: "assistant",
+    value: result.value as string,
     display: result.value,
   };
 }

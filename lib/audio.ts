@@ -147,6 +147,12 @@ export function saveAudio(chunks: any[], audioContext: any) {
 
   // convert audiobuffer to wav
   const wav = audioBufferToWav(outputBuffer, {});
-  const b64 = arrayBufferToBase64(wav);
-  return b64;
+  const blob = new Blob([wav], {
+    type: "audio/wav",
+  });
+
+  // const b64 = arrayBufferToBase64(wav);
+  // return b64;
+
+  return blob;
 }

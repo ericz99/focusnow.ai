@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useSessionStore } from "@/lib/stores";
 import { SessionControl } from "@/components/internals/session-control";
 import { ChatPanel } from "@/components/internals/chat-panel";
+import { SessionItemIncluded } from "@/prisma/db/session";
 
 const MediaRecorder = dynamic(
   () =>

@@ -1,16 +1,16 @@
 import { create } from "zustand";
 
 interface DataStore {
-  incomingData: string[];
-  appendData: (data: string) => void;
+  incomingData: Blob[];
+  appendData: (blob: Blob) => void;
   releaseData: () => void;
 }
 
 export const useDataStore = create<DataStore>()((set) => ({
   incomingData: [],
-  appendData: (data: string) =>
+  appendData: (blob: Blob) =>
     set((state) => ({
-      incomingData: [...state.incomingData, data],
+      incomingData: [...state.incomingData, blob],
     })),
   releaseData: () =>
     set(() => ({

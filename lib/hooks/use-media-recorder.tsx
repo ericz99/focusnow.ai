@@ -66,9 +66,10 @@ export default function useMediaRecorder() {
 
     const constraints: MediaStreamConstraints = {
       audio: {
-        echoCancellation: false,
-        noiseSuppression: false,
-        autoGainControl: false,
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+        channelCount: 1,
       },
       video: true,
     };
@@ -181,16 +182,18 @@ export default function useMediaRecorder() {
       console.log("lastSpeechDetectedTime", lastSpeechDetectedTime.current);
 
       setTimeout(() => {
-        if (Date.now() - lastSpeechDetectedTime.current! > 250) {
+        if (Date.now() - lastSpeechDetectedTime.current! > 500) {
           console.log("should collect");
-          const b64 = saveAudio(mediaChunks.current, audioContext.current);
+          const blob = saveAudio(mediaChunks.current, audioContext.current);
 
-          if (b64) {
+          if (blob) {
+            console.log("blob", blob);
+
             mediaChunks.current = [];
-            appendData(b64);
+            appendData(blob);
           }
         }
-      }, 250);
+      }, 500);
     }
   };
 

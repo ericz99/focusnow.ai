@@ -12,6 +12,7 @@ export interface ServerMessage {
 export interface ClientMessage {
   id: string;
   role: "user" | "assistant";
+  value: string;
   display: ReactNode;
 }
 
