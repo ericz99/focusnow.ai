@@ -41,6 +41,7 @@ export default function useMediaRecorder() {
   const lastSpeechDetectedTime = useRef<number | null>(null);
   const [_status, setStatus] = useState<StatusMessages>("idle");
   const [_error, setError] = useState<keyof typeof RecorderErrors>("NONE");
+  const pauseRef = useRef<Boolean>(false);
 
   useEffect(() => {
     if (!window.navigator.mediaDevices.enumerateDevices) {
@@ -140,6 +141,11 @@ export default function useMediaRecorder() {
 
     console.log("starting stream?");
 
+    if (pauseRef.current) {
+      pauseRef.current = false;
+      return;
+    }
+
     const isActive = await configureStream();
 
     if (isActive) {
@@ -164,45 +170,45 @@ export default function useMediaRecorder() {
   };
 
   const onStreamData = (e: any) => {
-    const { buffer, speechDetected } = e.data;
-    const _buffer = new Float32Array(buffer);
-    // console.log("incoming buffer -> ", _buffer);
-    console.log("speechDetected", speechDetected);
-    mediaChunks.current.push(_buffer);
+    if (!pauseRef.current) {
+      const { buffer, speechDetected } = e.data;
+      const _buffer = new Float32Array(buffer);
+      // console.log("incoming buffer -> ", _buffer);
+      console.log("speechDetected", speechDetected);
+      mediaChunks.current.push(_buffer);
 
-    // # collect timestamp
-    if (
-      lastSpeechDetectedTime.current == null ||
-      lastSpeechDetectedTime.current < Date.now()
-    ) {
-      lastSpeechDetectedTime.current = Date.now();
-    }
+      // # collect timestamp
+      if (
+        lastSpeechDetectedTime.current == null ||
+        lastSpeechDetectedTime.current < Date.now()
+      ) {
+        lastSpeechDetectedTime.current = Date.now();
+      }
 
-    if (!speechDetected && lastSpeechDetectedTime.current != null) {
-      console.log("lastSpeechDetectedTime", lastSpeechDetectedTime.current);
+      if (!speechDetected && lastSpeechDetectedTime.current != null) {
+        console.log("lastSpeechDetectedTime", lastSpeechDetectedTime.current);
 
-      setTimeout(() => {
-        if (Date.now() - lastSpeechDetectedTime.current! > 500) {
-          console.log("should collect");
-          const blob = saveAudio(mediaChunks.current, audioContext.current);
+        setTimeout(() => {
+          if (Date.now() - lastSpeechDetectedTime.current! > 500) {
+            console.log("should collect");
+            const blob = saveAudio(mediaChunks.current, audioContext.current);
 
-          if (blob) {
-            console.log("blob", blob);
+            if (blob) {
+              console.log("blob", blob);
 
-            mediaChunks.current = [];
-            appendData(blob);
+              mediaChunks.current = [];
+              appendData(blob);
+            }
           }
-        }
-      }, 500);
+        }, 500);
+      }
     }
   };
 
   const stopStream = () => {
     if (!audioContext.current || !audioSource.current) return;
-    audioSource.current.disconnect();
-    audioContext.current = null;
-    audioSource.current = null;
-    console.log("Disconnecting audio source!");
+    pauseRef.current = true;
+    console.log("Pausing audio source!");
   };
 
   return {

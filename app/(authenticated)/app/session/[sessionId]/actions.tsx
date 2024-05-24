@@ -65,15 +65,10 @@ async function generateResponse({ prompt }: { prompt: string }) {
 
   const initialContext = `
     You are applying for this job: \n
-
     Position: ${job?.position} \n
-
     Company: ${job?.company} \n
-
     Company Detail: ${job?.companyDetail} \n
-
     Job Description: ${job?.jobDescription} \n
-
     Additional Information about this interview: ${additionalInfo} \n
   `;
 
@@ -88,13 +83,13 @@ async function generateResponse({ prompt }: { prompt: string }) {
 
     <main-goal> \n
     
-    You are an experienced developer that is going through a behavioral interview. \n
+    You are an experienced developer that is going through a behavioral / technical interview. \n
 
     For each questions please come up with multiple short plain and simple answers that can be answer to that question. \n
 
     Please return each unique answers in a bullet point form, and only generate up to 10 answers. \n
 
-    If you already made a response, on the prompt avoid making additional response. \n
+    If you already made a response, on the prompt avoid making additional response to save output token. \n
 
     </main-goal> \n
 
@@ -115,6 +110,7 @@ async function generateResponse({ prompt }: { prompt: string }) {
       }
 
       if (done) {
+        textStream.done();
         state.done({
           ...state.get(),
           messages: [

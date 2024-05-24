@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, memo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   LayoutDashboard,
   Building2,
@@ -10,8 +10,6 @@ import {
 import { usePathname } from "next/navigation";
 import { getMainRoute } from "@/lib/route";
 import { cn } from "@/lib/utils";
-import { useUser } from "@/lib/hooks";
-import { ProfileToggle } from "@/components/internals/profile-toggle";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import type { SubscriptionItemIncluded } from "@/prisma/db/subscription";
@@ -26,7 +24,6 @@ interface SidebarProps {
 }
 
 export function Sidebar({ sub, pricings, credit }: SidebarProps) {
-  const { signOut, userData } = useUser();
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const pathname = usePathname();
   const routes = getMainRoute();
@@ -52,8 +49,8 @@ export function Sidebar({ sub, pricings, credit }: SidebarProps) {
               "text-base transition-all font-normal ease-in-out duration-75 rounded-md p-2 flex items-center gap-3 text-zinc-400",
               `${
                 activeTab == r.path
-                  ? "text-white bg-blue-500/80"
-                  : "hover:bg-blue-400/60 hover:text-white"
+                  ? "text-white bg-blue-500"
+                  : "hover:bg-blue-500/80 hover:text-white"
               }`,
               `${r.isDisabled ? "pointer-events-none" : ""}`
             )}
@@ -74,8 +71,6 @@ export function Sidebar({ sub, pricings, credit }: SidebarProps) {
           <BillingFormButton sub={sub} />
         </div>
       </div>
-
-      <ProfileToggle userData={userData!} signOut={signOut} />
     </div>
   );
 }

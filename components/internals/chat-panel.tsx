@@ -24,6 +24,8 @@ export function ChatPanel() {
   }, [messages]);
 
   useEffect(() => {
+    // const abortController = new AbortController();
+
     if (incomingData && incomingData.length) {
       console.log("incoming data???");
       console.log(incomingData);
@@ -32,6 +34,8 @@ export function ChatPanel() {
         try {
           const formData = new FormData();
           formData.append("audioData", incomingData.at(-1)!);
+
+          console.log("running transcription function");
 
           const data = await fetch("/api/ai/transcribe", {
             // signal: abortController.signal,
@@ -106,6 +110,7 @@ export function ChatPanel() {
     }
 
     // return () => abortController.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [incomingData, setMessages, messages, releaseData]);
 
   return (

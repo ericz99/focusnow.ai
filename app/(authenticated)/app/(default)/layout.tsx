@@ -6,7 +6,7 @@ import { getUserSubscription } from "@/prisma/db/subscription";
 import { getPrices } from "@/prisma/db/price";
 import { getUser } from "@/prisma/db/user";
 import { Sidebar } from "@/components/layouts/sidebar";
-import { WelcomeMessage } from "@/components/internals/welcome-message";
+import { MainNav } from "@/components/internals/main-nav";
 
 export default async function MainDefaultLayout({
   children,
@@ -34,7 +34,7 @@ export default async function MainDefaultLayout({
     <div className="overflow-hidden w-full h-screen relative flex">
       <Sidebar sub={sub} pricings={prices ?? []} credit={dbUser!.credit ?? 0} />
       <div className="flex flex-col relative h-full w-full bg-[#edf6f9]/30">
-        <WelcomeMessage />
+        <MainNav />
 
         {children}
       </div>

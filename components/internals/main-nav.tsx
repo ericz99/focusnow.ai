@@ -1,4 +1,9 @@
+"use client";
+
+import { useUser } from "@/lib/hooks";
 import React from "react";
+
+import { ProfileToggle } from "@/components/internals/profile-toggle";
 
 const welcomeMessages = [
   "🤖: Welcome aboard Interview Copilot! Get ready to soar through your interview prep journey with our personalized guidance and support.",
@@ -8,11 +13,19 @@ const welcomeMessages = [
   "🤖: Welcome to Interview Copilot! Sit back, relax, and let us be your trusted co-pilots as you navigate the skies of career advancement.",
 ];
 
-export function WelcomeMessage() {
+export function MainNav() {
+  const { signOut, userData } = useUser();
   const rand = Math.floor(Math.random() * welcomeMessages.length);
+
   return (
-    <div className="bg-white py-4 px-6 relative w-full flex-1">
-      <p className="text-sm w-full">{welcomeMessages[rand]}</p>
+    <div className="w-full flex border-b border-solid border-zinc-200">
+      <div className="p-4 flex flex-1">
+        <p className="text-xs w-full flex-1 italic font-bold">
+          {welcomeMessages[rand]}
+        </p>
+      </div>
+
+      <ProfileToggle userData={userData!} signOut={signOut} />
     </div>
   );
 }
