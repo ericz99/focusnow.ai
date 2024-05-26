@@ -16,23 +16,25 @@ export function SessionControl({
   const [isRunning, setRunning] = useState(false);
 
   return (
-    <div className="p-4 relative flex justify-end gap-4">
+    <div className="relative flex justify-end gap-4">
       <Button
-        variant={"success"}
+        variant={"outline"}
         onClick={async () => {
           setRunning(true);
           await startStream();
         }}
+        className="border-solid"
         disabled={isRunning}
       >
         Start
       </Button>
       <Button
-        variant={"destructive"}
+        variant={"outline"}
         onClick={() => {
           setRunning(false);
           stopStream();
         }}
+        className="border-solid"
         disabled={!isRunning}
       >
         Stop

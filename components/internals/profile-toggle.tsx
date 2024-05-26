@@ -22,7 +22,7 @@ type ProfileDropDownProps = {
 export function ProfileToggle({ userData, signOut }: ProfileDropDownProps) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="relative mx-4">
+      <DropdownMenuTrigger className="relative">
         <Avatar className="h-7 w-7">
           <AvatarImage src={userData?.user_metadata.avatar_url} />
           <AvatarFallback>{userData?.email}</AvatarFallback>

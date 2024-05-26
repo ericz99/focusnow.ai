@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import dynamic from "next/dynamic";
 import { CircleCheck, CircleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,8 @@ import { useSessionStore } from "@/lib/stores";
 import { SessionControl } from "@/components/internals/session-control";
 import { ChatPanel } from "@/components/internals/chat-panel";
 import { SessionItemIncluded } from "@/prisma/db/session";
+import { usePersistentTimer } from "@/lib/hooks";
+import { formatTime } from "@/lib/utils";
 
 const MediaRecorder = dynamic(
   () =>
@@ -17,9 +19,24 @@ const MediaRecorder = dynamic(
   { ssr: false }
 );
 
-export default function CopilotSessionLayout() {
+interface CopilotSessionLayoutProps {
+  session: SessionItemIncluded;
+}
+
+export default function CopilotSessionLayout({
+  session,
+}: CopilotSessionLayoutProps) {
   const { setChromeAudioActive, isChromeAudioActive } = useSessionStore();
   const [next, setNext] = useState(false);
+
+  const { remainingTime, startTimer } = usePersistentTimer(next, {
+    onTick: () => {
+      console.log("Tick");
+    },
+    onComplete: () => {
+      console.log("Completed");
+    },
+  });
 
   return (
     <MediaRecorder
@@ -53,7 +70,10 @@ export default function CopilotSessionLayout() {
               variant={"success"}
               size={"lg"}
               disabled={!isChromeAudioActive}
-              onClick={() => setNext(true)}
+              onClick={() => {
+                startTimer(60 * 10 * 1000);
+                setNext(true);
+              }}
             >
               Continue
             </Button>
@@ -75,7 +95,22 @@ export default function CopilotSessionLayout() {
           </div>
         ) : (
           <div className="flex flex-col h-full w-full max-w-full flex-1 relative">
-            <SessionControl startStream={startStream} stopStream={stopStream} />
+            <div className="flex items-center relative justify-between p-4">
+              <div className="flex-1 gap-4">
+                <h1 className="font-semibold text-3xl">{session?.name}</h1>
+                <p>
+                  Session Remaining:{" "}
+                  <strong>
+                    {remainingTime ? formatTime(remainingTime) : "Unknown"}
+                  </strong>
+                </p>
+              </div>
+
+              <SessionControl
+                startStream={startStream}
+                stopStream={stopStream}
+              />
+            </div>
 
             <div className="flex h-full w-full overflow-hidden gap-4">
               <ChatPanel />

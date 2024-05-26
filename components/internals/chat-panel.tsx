@@ -114,7 +114,7 @@ export function ChatPanel() {
   }, [incomingData, setMessages, messages, releaseData]);
 
   return (
-    <div className="container mx-auto max-w-8xl p-4 relative h-full w-full flex">
+    <div className="max-w-full p-4 relative h-full w-full flex gap-4">
       <InterviewerPanel messages={messages} />
       <CopilotPanel messages={messages} />
     </div>

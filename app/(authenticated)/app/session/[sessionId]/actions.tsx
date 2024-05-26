@@ -1,5 +1,4 @@
 import { openai } from "@ai-sdk/openai";
-import { embed } from "ai";
 import {
   createAI,
   getMutableAIState,
@@ -14,7 +13,6 @@ import {
   BotMessage,
 } from "@/components/internals/chat-message";
 import { checkAuth } from "@/lib/auth";
-import { getClient } from "@/core/db/lance";
 
 // Create the AI provider with the initial states and allowed actions
 export const AI = createAI<AIState, UIState>({

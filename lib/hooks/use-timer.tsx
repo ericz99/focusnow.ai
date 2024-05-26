@@ -1,45 +1,64 @@
-import { useState, useEffect } from "react";
+"use client";
 
-interface UsePersistentTimerProps {
-  duration: number; // Duration in minutes
-  startTime: number; // Pre-fetched start time in milliseconds
-  onComplete: () => void;
+import { useState, useEffect, useRef } from "react";
+
+interface CountdownOptions {
+  interval?: number;
+  onTick?: () => void;
+  onComplete?: () => void;
 }
 
-export const usePersistentTimer = ({
-  duration,
-  startTime,
-  onComplete,
-}: UsePersistentTimerProps) => {
-  const [timeLeft, setTimeLeft] = useState<number>(0);
+function getRemainingTime(endTime: number): number {
+  const now = new Date().getTime();
+  return Math.max(endTime - now, 0);
+}
+
+export function usePersistentTimer(
+  isActive: boolean,
+  { interval = 1000, onTick, onComplete }: CountdownOptions
+) {
+  const [remainingTime, setRemainingTime] = useState<number | null>(null);
+  const [endTime, setEndTime] = useState<number | null>(null);
+  const timerIdRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const endTime = startTime + duration * 60 * 1000;
+    const savedEndTime = localStorage.getItem("countdownEndTime");
+    if (savedEndTime) {
+      const parsedEndTime = parseInt(savedEndTime, 10);
+      setEndTime(parsedEndTime);
+      setRemainingTime(getRemainingTime(parsedEndTime));
+    }
+  }, []);
 
-    const updateTimer = () => {
-      const now = Date.now();
-      const remainingTime = Math.max(0, endTime - now);
-      setTimeLeft(Math.floor(remainingTime / 1000));
+  useEffect(() => {
+    if (isActive && endTime !== null) {
+      const tick = () => {
+        const newRemainingTime = getRemainingTime(endTime);
+        setRemainingTime(newRemainingTime);
 
-      if (remainingTime <= 0) {
-        onComplete();
-      }
-    };
+        if (onTick) onTick();
 
-    const intervalId = setInterval(updateTimer, 1000);
-    updateTimer();
+        if (newRemainingTime <= 0) {
+          clearInterval(timerIdRef.current!);
+          if (onComplete) onComplete();
+        }
+      };
 
-    return () => clearInterval(intervalId);
-  }, [duration, startTime, onComplete]);
+      timerIdRef.current = setInterval(tick, interval);
+      return () => {
+        if (timerIdRef.current) {
+          clearInterval(timerIdRef.current);
+        }
+      };
+    }
+  }, [isActive, endTime, interval, onTick, onComplete]);
 
-  const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = seconds % 60;
-    return `${hours}:${minutes < 10 ? "0" : ""}${minutes}:${
-      remainingSeconds < 10 ? "0" : ""
-    }${remainingSeconds}`;
+  const startTimer = (duration: number) => {
+    const currentEndTime = new Date().getTime() + duration;
+    setEndTime(currentEndTime);
+    localStorage.setItem("countdownEndTime", currentEndTime.toString());
+    setRemainingTime(getRemainingTime(currentEndTime));
   };
 
-  return formatTime(timeLeft);
-};
+  return { remainingTime, startTimer };
+}
