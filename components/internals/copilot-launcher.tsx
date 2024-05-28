@@ -61,6 +61,9 @@ export function CopilotLauncher({
 
   const form = useForm<SessionSchema>({
     resolver: zodResolver(sessionSchema),
+    defaultValues: {
+      totalTime: "60_M",
+    },
   });
 
   const onSubmit = async (values: SessionSchema) => {
@@ -77,7 +80,7 @@ export function CopilotLauncher({
           variant="outline"
           className="flex gap-4 border border-solid border-zinc-200"
         >
-          Create Copilot Session
+          Create Session
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-2xl">
@@ -92,7 +95,9 @@ export function CopilotLauncher({
           <div className="grid flex-1 gap-2">
             <Form {...form}>
               <form
-                onSubmit={form.handleSubmit(onSubmit)}
+                onSubmit={form.handleSubmit(onSubmit, (errors) =>
+                  console.log(errors)
+                )}
                 className="flex flex-col gap-4"
               >
                 <FormField

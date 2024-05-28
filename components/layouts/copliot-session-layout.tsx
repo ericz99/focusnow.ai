@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { CircleCheck, CircleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSessionStore } from "@/lib/stores";
@@ -21,21 +22,39 @@ const MediaRecorder = dynamic(
 
 interface CopilotSessionLayoutProps {
   session: SessionItemIncluded;
+  updateSessionData: (data: {
+    id: string;
+    startTime?: string;
+    endTime?: string;
+    isFinished?: boolean;
+  }) => Promise<void>;
 }
 
 export default function CopilotSessionLayout({
   session,
+  updateSessionData,
 }: CopilotSessionLayoutProps) {
   const { setChromeAudioActive, isChromeAudioActive } = useSessionStore();
   const [next, setNext] = useState(false);
+  const router = useRouter();
 
   const { remainingTime, startTimer } = usePersistentTimer(next, {
     onTick: () => {
       console.log("Tick");
     },
-    onComplete: () => {
+    onComplete: async () => {
       console.log("Completed");
+
+      // # update session to finished
+      await updateSessionData({
+        id: session!.id,
+        isFinished: true,
+      });
+
+      // # redirect user back to /app/intervier
+      router.push("/app/interview");
     },
+    prevEndTime: session?.endTime,
   });
 
   return (
@@ -70,8 +89,18 @@ export default function CopilotSessionLayout({
               variant={"success"}
               size={"lg"}
               disabled={!isChromeAudioActive}
-              onClick={() => {
-                startTimer(60 * 10 * 1000);
+              onClick={async () => {
+                // # start timer
+                const { startTime, endTime } = startTimer(60 * 10 * 1000);
+
+                // # update startTime and endTime using server action
+                await updateSessionData({
+                  id: session!.id,
+                  startTime,
+                  endTime,
+                });
+
+                // # go to next section
                 setNext(true);
               }}
             >

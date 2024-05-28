@@ -211,10 +211,19 @@ export default function useMediaRecorder() {
     console.log("Pausing audio source!");
   };
 
+  const disconnectStream = () => {
+    const stream = mediaStream.current;
+
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+    }
+  };
+
   return {
     startStream,
     stopStream,
     configureStream,
+    disconnectStream,
     outputs: audioOutput.current || [],
   };
 }
@@ -225,6 +234,7 @@ export const ReactMediaRecorder = ({
   render: (props: {
     startStream: () => Promise<void>;
     stopStream: () => void;
+    disconnectStream: () => void;
     configureStream: () => Promise<Boolean>;
     outputs: MediaDeviceInfo[];
   }) => ReactElement;

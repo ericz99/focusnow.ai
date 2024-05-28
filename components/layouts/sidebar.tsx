@@ -38,6 +38,16 @@ export function Sidebar({ sub, pricings, credit }: SidebarProps) {
 
   return (
     <div className="w-[450px] flex flex-col relative h-full p-4 bg-white border-r border-solid border-zinc-200">
+      <div className="flex justify-center items-baseline space-x-1 pt-2 pb-6">
+        <span className="text-2xl font-semibold">InterviewPilot</span>
+        <div className="relative">
+          <span className="text-xs absolute -top-2 right-1 transform translate-x-full font-bold text-red-700">
+            AI
+          </span>
+          <span className="text-xs opacity-0">^</span>
+        </div>
+      </div>
+
       <div className="flex-1 flex flex-col gap-1 relative">
         {routes.map((r, idx) => (
           <Link
@@ -49,8 +59,8 @@ export function Sidebar({ sub, pricings, credit }: SidebarProps) {
               "text-base transition-all font-normal ease-in-out duration-75 rounded-md p-2 flex items-center gap-3 text-zinc-400",
               `${
                 activeTab == r.path
-                  ? "text-white bg-blue-500"
-                  : "hover:bg-blue-500/80 hover:text-white"
+                  ? "text-black bg-zinc-200"
+                  : "hover:bg-zinc-100/80 hover:text-black"
               }`,
               `${r.isDisabled ? "pointer-events-none" : ""}`
             )}

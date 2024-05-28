@@ -48,3 +48,16 @@ interview simulator playground
     - make sure user have enough credit to launch
 2. in the AI actions add all embedding and context
 3. 
+
+----------------------
+
+1. global session timer
+    - when user closed their session browser tab, but did not end the session,
+        their session still exist, with a timer limit when they open back the /app/interview and will bring back with there
+        were, with all the transcript
+2. make the end session working, when user end session, session cannot be launch again, but they can view the transcription in the archive
+3. connect those analytics and make the dashboard on the session sessions and etc
+4. rebrand ui 
+5. 
+
+for the plans, there will be a free tier of free 200 credit = $200 can do about 8 session

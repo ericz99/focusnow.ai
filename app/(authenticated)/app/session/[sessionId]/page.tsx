@@ -2,8 +2,8 @@ import dynamic from "next/dynamic";
 import React from "react";
 
 import { getSession } from "@/prisma/db/session";
-import { getJob } from "@/prisma/db/job";
 import { notFound } from "next/navigation";
+import { updateSessionData } from "./actions";
 
 const CopilotSessionLayout = dynamic(
   () => import("@/components/layouts/copliot-session-layout"),
@@ -25,5 +25,10 @@ export default async function SessionPage({
     notFound();
   }
 
-  return <CopilotSessionLayout session={session} />;
+  return (
+    <CopilotSessionLayout
+      session={session}
+      updateSessionData={updateSessionData}
+    />
+  );
 }

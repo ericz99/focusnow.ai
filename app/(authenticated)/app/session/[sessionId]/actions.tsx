@@ -13,6 +13,33 @@ import {
   BotMessage,
 } from "@/components/internals/chat-message";
 import { checkAuth } from "@/lib/auth";
+import { updateSession } from "@/prisma/db/session";
+import { revalidatePath } from "next/cache";
+
+export const updateSessionTime = async (data: {
+  id: string;
+  startTime: string;
+  endTime: string;
+}) => {
+  "use server";
+
+  await updateSession(data);
+
+  revalidatePath("/app/session/[sessionId]", "page");
+};
+
+export const updateSessionData = async (data: {
+  id: string;
+  isFinished?: boolean;
+  startTime?: string;
+  endTime?: string;
+}) => {
+  "use server";
+
+  await updateSession(data);
+
+  revalidatePath("/app/session/[sessionId]", "page");
+};
 
 // Create the AI provider with the initial states and allowed actions
 export const AI = createAI<AIState, UIState>({

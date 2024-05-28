@@ -5,9 +5,9 @@ export const sessionSchema = z.object({
   name: z.string(),
   totalTime: z.string().nullable(),
   resumeId: z.string(),
-  coverLetterId: z.string().nullable(),
+  coverLetterId: z.string().nullable().optional(),
   jobId: z.string(),
-  additionalInfo: z.string().nullable(),
+  additionalInfo: z.string().nullable().optional(),
 });
 
 export type SessionSchema = z.infer<typeof sessionSchema>;
@@ -83,6 +83,57 @@ export const deleteSession = async (id: string) => {
         id,
       },
     });
+  } catch (error) {
+    console.error("error occured", error);
+  }
+
+  return false;
+};
+
+export const updateSession = async ({
+  id,
+  ...rest
+}: {
+  id: string;
+  startTime?: string;
+  endTime?: string;
+  isActive?: boolean;
+  isFinished?: boolean;
+}) => {
+  try {
+    const session = await prisma.session.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!session) {
+      throw new Error("Session not found!");
+    }
+
+    if (!session.endTime && !session.startTime) {
+      await prisma.session.update({
+        where: {
+          id,
+        },
+        data: {
+          ...rest,
+        },
+      });
+    }
+
+    if (rest.isFinished) {
+      await prisma.session.update({
+        where: {
+          id,
+        },
+        data: {
+          isFinished: rest.isFinished,
+        },
+      });
+    }
+
+    return true;
   } catch (error) {
     console.error("error occured", error);
   }

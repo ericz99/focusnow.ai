@@ -159,15 +159,17 @@ model Job {
 model Session {
   id             String       @id @default(cuid())
   name           String
+  isActive       Boolean      @default(false)
   isFinished     Boolean      @default(false)
   totalTime      String
-  finishedAt     DateTime?
+  startTime      String?
+  endTime        String?
   transcripts    Transcript[]
   user           User         @relation(fields: [userId], references: [id])
   userId         String
-  resumeId       String       @unique
-  coverLetterId  String?      @unique
-  jobId          String       @unique
+  resumeId       String
+  coverLetterId  String?
+  jobId          String
   additionalInfo String?      @db.LongText
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt

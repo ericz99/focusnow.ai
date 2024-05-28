@@ -6,6 +6,7 @@ interface CountdownOptions {
   interval?: number;
   onTick?: () => void;
   onComplete?: () => void;
+  prevEndTime?: string | null;
 }
 
 function getRemainingTime(endTime: number): number {
@@ -15,20 +16,19 @@ function getRemainingTime(endTime: number): number {
 
 export function usePersistentTimer(
   isActive: boolean,
-  { interval = 1000, onTick, onComplete }: CountdownOptions
+  { interval = 1000, onTick, onComplete, prevEndTime }: CountdownOptions
 ) {
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
+  const [_, setStartTime] = useState<number | null>(null);
   const [endTime, setEndTime] = useState<number | null>(null);
   const timerIdRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const savedEndTime = localStorage.getItem("countdownEndTime");
-    if (savedEndTime) {
-      const parsedEndTime = parseInt(savedEndTime, 10);
-      setEndTime(parsedEndTime);
-      setRemainingTime(getRemainingTime(parsedEndTime));
+    if (prevEndTime) {
+      setEndTime(Number(prevEndTime));
+      setRemainingTime(getRemainingTime(Number(prevEndTime)));
     }
-  }, []);
+  }, [prevEndTime]);
 
   useEffect(() => {
     if (isActive && endTime !== null) {
@@ -51,13 +51,27 @@ export function usePersistentTimer(
         }
       };
     }
-  }, [isActive, endTime, interval, onTick, onComplete]);
+  }, [isActive, endTime, interval, onTick, onComplete, prevEndTime]);
 
   const startTimer = (duration: number) => {
-    const currentEndTime = new Date().getTime() + duration;
-    setEndTime(currentEndTime);
-    localStorage.setItem("countdownEndTime", currentEndTime.toString());
-    setRemainingTime(getRemainingTime(currentEndTime));
+    let startTime = null;
+    let endTime = null;
+
+    if (!prevEndTime) {
+      startTime = new Date().getTime();
+      setStartTime(startTime);
+      endTime = startTime + duration;
+      setEndTime(endTime);
+      setRemainingTime(getRemainingTime(endTime));
+    } else {
+      endTime = Number(prevEndTime);
+      setRemainingTime(getRemainingTime(Number(prevEndTime)));
+    }
+
+    return {
+      startTime: String(startTime),
+      endTime: String(endTime),
+    };
   };
 
   return { remainingTime, startTimer };
