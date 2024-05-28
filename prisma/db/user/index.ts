@@ -44,7 +44,7 @@ export const getUserData = async (user: User) => {
       },
       include: {
         sessions: true,
-        subs: true,
+        sub: true,
       },
     });
 
@@ -71,7 +71,7 @@ export const getUser = async (data: {
         supaUserId,
       },
       include: {
-        subs: true,
+        sub: true,
         sessions: true,
         paymentHistory: true,
       },

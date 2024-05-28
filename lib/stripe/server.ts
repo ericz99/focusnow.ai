@@ -43,7 +43,7 @@ export async function createStripePortal(currentPath: string) {
     try {
       const { url } = await stripe.billingPortal.sessions.create({
         customer: _user.stripeUserId,
-        return_url: getURL(`/app/dashboard`),
+        return_url: getURL(`/app/billing`),
       });
 
       if (!url) {

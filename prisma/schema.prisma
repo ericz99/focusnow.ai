@@ -70,7 +70,7 @@ model User {
   name           String?
   email          String           @unique
   password       String?
-  subs           Subscription[]
+  sub            Subscription?
   credit         Int              @default(0)
   sessions       Session[]
   documents      Document[]
@@ -113,7 +113,7 @@ model Price {
 model Subscription {
   id                 String             @id
   user               User               @relation(fields: [userId], references: [id])
-  userId             String
+  userId             String             @unique
   status             SubscriptionStatus
   metadata           Json?
   price              Price              @relation(references: [id], fields: [priceId])

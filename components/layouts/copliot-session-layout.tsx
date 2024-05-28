@@ -136,8 +136,11 @@ export default function CopilotSessionLayout({
               </div>
 
               <SessionControl
+                id={session!.id}
                 startStream={startStream}
                 stopStream={stopStream}
+                remainingTime={remainingTime!}
+                updateSessionData={updateSessionData}
               />
             </div>
 

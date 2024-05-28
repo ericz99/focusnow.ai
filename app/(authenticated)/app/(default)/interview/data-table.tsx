@@ -190,9 +190,18 @@ export function DataTable<TData, TValue>({
                             </AlertDialogContent>
                           </AlertDialog>
                         ) : org?.isActive &&
-                          org.endTime! &&
-                          new Date().getTime() > Number(org.endTime!) ? (
-                          <Badge>Done</Badge>
+                          ((org.endTime! &&
+                            new Date().getTime() > Number(org.endTime!)) ||
+                            org.isFinished) ? (
+                          <div className="flex gap-4">
+                            <Button variant={"default"} size={"sm"}>
+                              View
+                            </Button>
+
+                            <Button variant={"default"} size={"sm"}>
+                              Delete
+                            </Button>
+                          </div>
                         ) : (
                           <div className="flex items-center relative gap-4">
                             <Badge>Is Active</Badge>
