@@ -1,13 +1,14 @@
 export const SEED_PLANS = [
   {
-    name: "Business Plan",
-    id: "prod_Q7KASBVQG5Qgv8",
+    name: "Free Plan",
+    id: "prod_QBs9nWbq5pP4Z4",
     image: "https://placehold.co/600x400",
+    description: "A free plan for curious users that wants to try our product.",
     active: true,
     price: {
-      id: "price_1PH5WLJ58A1yplC4UUm9QSZB",
+      id: "price_1PLUOpJ58A1yplC4LSZZOMKX",
       active: true,
-      unitAmount: 199.99,
+      unitAmount: 0,
       currency: "USD",
     },
   },
@@ -15,11 +16,26 @@ export const SEED_PLANS = [
     name: "Pro Plan",
     id: "prod_Q7Ndc6gfkUJxVH",
     image: "https://placehold.co/600x400",
+    description: "A pro plan for growing businesses.",
     active: true,
     price: {
       id: "price_1PH8sCJ58A1yplC4ySftkaAL",
       active: true,
       unitAmount: 99.99,
+      currency: "USD",
+    },
+  },
+  {
+    name: "Business Plan",
+    id: "prod_Q7KASBVQG5Qgv8",
+    image: "https://placehold.co/600x400",
+    description:
+      "An business plan with advanced features for large organizations.",
+    active: true,
+    price: {
+      id: "price_1PH5WLJ58A1yplC4UUm9QSZB",
+      active: true,
+      unitAmount: 199.99,
       currency: "USD",
     },
   },

@@ -16,7 +16,7 @@ export function PricingPlan({ products }: PricingPlanProps) {
         <PricingCard
           key={p!.id}
           name={p!.name}
-          description="No Description"
+          description={p!.description!}
           price={p!.price!.unitAmount}
           featureListItems={[
             "Advanced AI insights",

@@ -5,6 +5,7 @@ import { checkAuth } from "@/lib/auth";
 import { CustomerPortalForm } from "@/components/internals/customer-portal-form";
 import { getProducts } from "@/prisma/db/product";
 import { PricingPlan } from "@/components/internals/pricing-plan";
+import { Separator } from "@/components/ui/separator";
 
 export default async function BillingPage() {
   const user = await checkAuth();
@@ -17,6 +18,9 @@ export default async function BillingPage() {
   return (
     <div className="container relative mx-auto max-w-screen-2xl pt-12 px-4 md:px-8">
       <CustomerPortalForm sub={sub} />
+
+      <Separator className="mb-8" />
+
       <PricingPlan products={recurringPlans ?? []} />
     </div>
   );
