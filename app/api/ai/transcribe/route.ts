@@ -1,28 +1,36 @@
 import OpenAI, { toFile } from "openai";
 import { Buffer } from "node:buffer";
 import { NextResponse, NextRequest } from "next/server";
-import { createClient } from "@deepgram/sdk";
+import { createClient, DeepgramClient } from "@deepgram/sdk";
 
-// Create an OpenAI API client (that's edge friendly!)
-const deepgram = createClient(process.env.DEEPGRAM_API_KEY!);
+let model: DeepgramClient | OpenAI | null = null;
 
-// // Create an OpenAI API client (that's edge friendly!)
-// const openai = new OpenAI({
-//   apiKey: process.env.OPENAI_API_KEY || "",
-// });
+if (process.env.ENABLED_AUDIO_AI == "deepgram") {
+  model = createClient(process.env.DEEPGRAM_API_KEY!);
+}
 
-// // IMPORTANT! Set the runtime to edge
-// export const runtime = "edge";
+if (process.env.ENABLED_AUDIO_AI == "openai") {
+  model = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY || "",
+  });
+}
+
+// Type guard for DeepgramClient
+function isDeepgramClient(model: any): model is DeepgramClient {
+  return model instanceof DeepgramClient;
+}
+
+// Type guard for OpenAI
+function isOpenAI(model: any): model is OpenAI {
+  return model instanceof OpenAI;
+}
+
+export const runtime =
+  process.env.ENABLED_AUDIO_AI == "deepgram" ? "nodejs" : "edge";
 
 export async function POST(req: NextRequest) {
   try {
     console.log("HELLO MAKING REQUEST!");
-    // const body = (await req.json()) as any;
-    // const base64Audio = body.audioData;
-
-    // if (!base64Audio) {
-    //   throw new Error("No audio data found in the request body");
-    // }
 
     const form = await req.formData();
     const audioData = form.get("audioData") as Blob;
@@ -31,44 +39,51 @@ export async function POST(req: NextRequest) {
       throw new Error("No audio data found in the request body");
     }
 
-    // const audioBuffer = Buffer.from(base64Audio, "base64");
+    if (model) {
+      if (isOpenAI(model)) {
+        console.log("using openai model");
 
-    // console.log("audiobuffer", audioBuffer);
-    const audioBuffer = await audioData.arrayBuffer();
-    const buffer = Buffer.from(audioBuffer);
+        const resp = await model.audio.transcriptions.create({
+          file: await toFile(audioData, "audio.wav", {
+            //@ts-ignore
+            contentType: "audio/wav",
+          }),
+          model: "whisper-1",
+        });
 
-    const { result, error } = await deepgram.listen.prerecorded.transcribeFile(
-      buffer,
-      {
-        model: "nova-2",
-        punctuate: true,
-        filler_words: true,
-        utterances: true,
+        console.log("resp", resp);
+
+        return NextResponse.json({
+          transcription: resp.text,
+        });
+      } else if (isDeepgramClient(model)) {
+        console.log("using deepgram model");
+
+        const audioBuffer = await audioData.arrayBuffer();
+        const buffer = Buffer.from(audioBuffer);
+
+        const { result, error } = await model.listen.prerecorded.transcribeFile(
+          buffer,
+          {
+            model: "nova-2",
+            punctuate: true,
+            filler_words: true,
+            utterances: true,
+          }
+        );
+
+        if (error) {
+          console.log(error);
+          throw error;
+        }
+
+        return NextResponse.json({
+          transcription: result.results.channels[0].alternatives[0].transcript,
+        });
+      } else {
+        throw new Error("Invalid model type.");
       }
-    );
-
-    if (error) {
-      console.log(error);
-      throw error;
     }
-
-    // const resp = await openai.audio.transcriptions.create({
-    //   file: await toFile(audioData, "audio.wav", {
-    //     //@ts-ignore
-    //     contentType: "audio/wav",
-    //   }),
-    //   model: "whisper-1",
-    // });
-
-    // console.log("resp", resp);
-
-    // return NextResponse.json({
-    //   transcription: resp.text,
-    // });
-
-    return NextResponse.json({
-      transcription: result.results.channels[0].alternatives[0].transcript,
-    });
   } catch (error) {
     console.error("Error during transcription:", error);
     // Check if the error is an APIError

@@ -17,9 +17,8 @@ export default async function DocumentsPage() {
     <div className="container flex flex-col relative mx-auto max-w-screen-2xl pt-24 px-4 md:px-8">
       <div className="flex items-center justify-between mb-6">
         <div className="flex flex-col gap-1">
-          <h1 className="break-normal text-lg font-medium sm:text-xl">
-            Documents
-          </h1>
+          <h1 className="text-4xl font-semibold">Document</h1>
+
           <h2 className="text-xs text-muted-foreground sm:text-sm">
             Upload all your resumes / cover letters via the uploader.
           </h2>
