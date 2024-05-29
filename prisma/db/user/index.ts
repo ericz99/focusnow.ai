@@ -2,6 +2,7 @@ import * as z from "zod";
 import { User } from "@supabase/supabase-js";
 import { prisma } from "..";
 import { stripe } from "@/lib/stripe/config";
+import { PRICES } from "@/config/stripe";
 
 export const magicLinkSchema = z.object({
   email: z.string().email(),
@@ -118,12 +119,25 @@ export const createNewUser = async ({ supaUserId, email }: NewUserSchema) => {
       throw new Error("Failed to create stripe customer.");
     }
 
+    // # create new user
     const user = await prisma.user.create({
       data: {
         email,
         supaUserId,
         stripeUserId: stripeCustomer.id,
+        credit: 200, // default all new user will get 200 credit because they're on the free plan
       },
+    });
+
+    // # create new subscription for user = free plan $0 / month
+    // # after this is created, it will then be triggered by the webhook where we will store it in the database
+    await stripe.subscriptions.create({
+      customer: stripeCustomer.id,
+      items: [
+        {
+          price: PRICES["free_plan"],
+        },
+      ],
     });
 
     return user;

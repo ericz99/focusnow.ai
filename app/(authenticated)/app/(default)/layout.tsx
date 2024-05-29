@@ -28,7 +28,8 @@ export default async function MainDefaultLayout({
     })
   );
 
-  console.log("sessions", sessions);
+  // console.log("sessions", sessions);
+  console.log("sub", sub);
 
   return (
     <div className="overflow-hidden w-full h-screen relative flex">

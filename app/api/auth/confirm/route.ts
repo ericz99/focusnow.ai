@@ -3,6 +3,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { type EmailOtpType } from "@supabase/supabase-js";
 
 import { createNewUser, checkIfHasUser } from "@/prisma/db/user";
+import { revalidatePath } from "next/cache";
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
@@ -34,8 +35,10 @@ export async function GET(request: NextRequest) {
         });
       }
 
+      revalidatePath("/", "layout");
+
       // # redirect user to their default team
-      return NextResponse.redirect(`${requestUrl.origin}/app/coding`);
+      return NextResponse.redirect(`${requestUrl.origin}/app/dashboard`);
     }
   }
 

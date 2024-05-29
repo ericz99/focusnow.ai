@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getURL, calculateTrialEndUnixTimestamp } from "@/lib/utils";
 
-import { Price } from "@prisma/client";
+import { PriceItemIncluded } from "@/prisma/db/price";
 
 type CheckoutResponse = {
   errorRedirect?: string;
@@ -62,8 +62,44 @@ export async function createStripePortal(currentPath: string) {
   }
 }
 
+export async function updateSubscription(
+  price: PriceItemIncluded,
+  subId: string,
+  cusId: string
+) {
+  console.log("newprice", price);
+
+  try {
+    const subscriptionItems = await stripe.subscriptionItems.list({
+      limit: 3,
+      subscription: subId,
+    });
+
+    const getOldSubItemId = subscriptionItems.data[0].id;
+
+    const sub = await stripe.subscriptions.update(subId, {
+      items: [
+        {
+          id: getOldSubItemId,
+          deleted: true,
+        },
+        {
+          price: price?.id,
+        },
+      ],
+      default_payment_method: "",
+    });
+
+    console.log("updated sub", sub);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+    }
+  }
+}
+
 export async function checkoutWithStripe(
-  price: Price,
+  price: PriceItemIncluded,
   redirectPath: string,
   options?: {
     quantity: number;
@@ -102,7 +138,7 @@ export async function checkoutWithStripe(
       },
       line_items: [
         {
-          price: price.id,
+          price: price!.id,
           quantity: options?.quantity ?? 1,
         },
       ],
@@ -110,15 +146,15 @@ export async function checkoutWithStripe(
       success_url: getURL(redirectPath),
     };
 
-    if (price.type === "recurring") {
+    if (price!.type === "recurring") {
       params = {
         ...params,
         mode: "subscription",
         subscription_data: {
-          trial_end: calculateTrialEndUnixTimestamp(price.trialPeriodDay),
+          trial_end: calculateTrialEndUnixTimestamp(price!.trialPeriodDay),
         },
       };
-    } else if (price.type === "one_time") {
+    } else if (price!.type === "one_time") {
       params = {
         ...params,
         mode: "payment",

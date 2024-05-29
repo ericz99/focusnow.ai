@@ -1,3 +1,9 @@
+export const PRICES = {
+  free_plan: "price_1PLUOpJ58A1yplC4LSZZOMKX",
+  pro_plan: "price_1PH8sCJ58A1yplC4ySftkaAL",
+  business_plan: "price_1PH5WLJ58A1yplC4UUm9QSZB",
+};
+
 export const SEED_PLANS = [
   {
     name: "Free Plan",

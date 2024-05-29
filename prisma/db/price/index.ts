@@ -23,9 +23,6 @@ export const getPrice = async (id: string) => {
       where: {
         id,
       },
-      include: {
-        subs: true,
-      },
     });
 
     return price;

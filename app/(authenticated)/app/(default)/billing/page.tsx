@@ -17,11 +17,15 @@ export default async function BillingPage() {
 
   return (
     <div className="container relative mx-auto max-w-screen-2xl pt-12 px-4 md:px-8">
+      <div className="flex flex-col gap-4 relative mb-12">
+        <h1 className="text-4xl font-semibold">Billing</h1>
+      </div>
+
       <CustomerPortalForm sub={sub} />
 
       <Separator className="mb-8" />
 
-      <PricingPlan products={recurringPlans ?? []} />
+      <PricingPlan sub={sub} products={recurringPlans ?? []} />
     </div>
   );
 }

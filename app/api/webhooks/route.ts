@@ -3,9 +3,13 @@ import { stripe } from "@/lib/stripe/config";
 
 import { upsertPrice, deletePrice } from "@/prisma/db/price";
 import { upsertProduct, deleteProduct } from "@/prisma/db/product";
-import { manageSubscriptionStatusChange } from "@/prisma/db/subscription";
+import {
+  manageSubscriptionStatusChange,
+  updateSubscriptionStatusChange,
+} from "@/prisma/db/subscription";
 import { createPayment } from "@/prisma/db/payment";
 import { addCreditToUser } from "@/prisma/db/credit";
+import { revalidatePath } from "next/cache";
 
 const relevantEvents = new Set([
   "product.created",
@@ -65,8 +69,19 @@ export async function POST(req: Request) {
           await deleteProduct(product);
           break;
         case "customer.subscription.created":
+          let createdSub = event.data.object as Stripe.Subscription;
+          console.log("sub created", createdSub);
+          await manageSubscriptionStatusChange(
+            createdSub.id,
+            createdSub.customer as string
+          );
           break;
         case "customer.subscription.updated":
+          const updatedSub = event.data.object as Stripe.Subscription;
+          await updateSubscriptionStatusChange(
+            updatedSub.id,
+            updatedSub.customer as string
+          );
           break;
         case "customer.subscription.deleted":
           const subscription = event.data.object as Stripe.Subscription;
@@ -123,5 +138,8 @@ export async function POST(req: Request) {
       status: 400,
     });
   }
+
+  revalidatePath("/", "layout");
+
   return new Response(JSON.stringify({ received: true }));
 }

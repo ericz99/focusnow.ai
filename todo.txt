@@ -65,3 +65,20 @@ for the plans, there will be a free tier of free 200 credit = $200 can do about 
 new account get free 200$ credit by default = 8 session
 , after usage account must upgrade to gain full access
 
+- first time user get free plan + 5 docs resumes, coverletter, and 200$ worth of credit
+- save transcript to database
+- ratelimit on session creation maybe using upstash or redis
+
+// for upgrade or downgrade stripe we just need to update the subscription but not recreate a whole new subscription
+
+- todo - 5/29/2024
+    
+    - when user upgrade or downgrade all features will be enabled after the period ends
+        basically you will get sub monthly credit after you upgrade or downgrade, not in between cycle
+        - doing something called deferred changes, meaning it will take effect at the next billing cycle, and will carry
+        over the remaining unused credit
+    - the revalidate cache is not working, it needs to be update in the client side
+    - need to add credit to user that subscribe to plans
+    - need to validate if user have enough credit to launch a session
+    - need to save transcription in the database
+    - list all payment transcriptions including one time payment, subscriptions invoices and etc

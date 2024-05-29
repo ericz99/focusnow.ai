@@ -63,7 +63,7 @@ export function CustomerPortalForm({ sub }: CustomerPortalFormProps) {
         <CardContent className="p-0">
           <div className="mt-8 mb-4 font-semibold text-xl">
             {sub ? (
-              `${subscriptionPrice}/${sub?.price?.interval}`
+              `$${sub?.price?.unitAmount}/${sub?.price?.interval}`
             ) : (
               <Link href="/#">Choose your plan</Link>
             )}
@@ -84,7 +84,7 @@ export function CustomerPortalForm({ sub }: CustomerPortalFormProps) {
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Submitting...
+                Loading...
               </>
             ) : (
               <>Open customer portal</>
