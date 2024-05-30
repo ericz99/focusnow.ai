@@ -81,4 +81,4 @@ new account get free 200$ credit by default = 8 session
     - need to add credit to user that subscribe to plans
     - need to validate if user have enough credit to launch a session
     - need to save transcription in the database
-    - list all payment transcriptions including one time payment, subscriptions invoices and etc
+    - list all payment transcriptions including one time payment, subscriptions invoices and etc - not important

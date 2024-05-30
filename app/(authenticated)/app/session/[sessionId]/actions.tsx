@@ -4,16 +4,23 @@ import {
   getMutableAIState,
   streamUI,
   createStreamableValue,
+  getAIState,
 } from "ai/rsc";
 import { nanoid } from "nanoid";
-import type { AIState, UIState } from "@/lib/types";
+import type {
+  AIState,
+  ClientMessage,
+  ServerMessage,
+  UIState,
+} from "@/lib/types";
 
 import {
   SpinnerMessage,
   BotMessage,
+  UserMessage,
 } from "@/components/internals/chat-message";
-import { checkAuth } from "@/lib/auth";
 import { updateSession } from "@/prisma/db/session";
+import { createTranscript } from "@/prisma/db/transcript";
 import { revalidatePath } from "next/cache";
 
 export const updateSessionTime = async (data: {
@@ -50,13 +57,37 @@ export const AI = createAI<AIState, UIState>({
   actions: {
     generateResponse,
   },
-  onSetAIState: async ({ key, state, done }) => {
+  // onGetUIState: async () => {
+  //   "use server";
+
+  //   const aiState = getAIState();
+
+  //   if (aiState) {
+  //     return getUIStateFromAIState(aiState);
+  //   }
+  // },
+  onSetAIState: async ({ state }) => {
     "use server";
 
-    const user = await checkAuth();
     const { session, messages } = state;
-    // # save all ai answer here
+
+    if (!session) {
+      throw new Error("Session not found!");
+    }
+
     console.log("messages", messages);
+
+    const { id } = session;
+
+    const lastMessage = messages.at(-1);
+
+    // # create the last message
+    await createTranscript({
+      sessionId: id,
+      role: lastMessage!.role!,
+      content: lastMessage!.content!,
+      id: lastMessage!.id,
+    });
   },
 });
 
@@ -162,3 +193,20 @@ async function generateResponse({ prompt }: { prompt: string }) {
     display: result.value,
   };
 }
+
+export const getUIStateFromAIState = (aiState: AIState) => {
+  return aiState.messages
+    .filter((message) => message.role !== "system")
+    .map((message, index) => ({
+      id: `${message.id}`,
+      role: message.role as ClientMessage["role"],
+      value: message.content as string,
+      display:
+        message.role === "user" ? (
+          <UserMessage>{message.content as string}</UserMessage>
+        ) : message.role === "assistant" &&
+          typeof message.content === "string" ? (
+          <BotMessage content={message.content} />
+        ) : null,
+    }));
+};

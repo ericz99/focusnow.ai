@@ -91,7 +91,7 @@ export default function CopilotSessionLayout({
               disabled={!isChromeAudioActive}
               onClick={async () => {
                 // # start timer
-                const { startTime, endTime } = startTimer(60 * 10 * 1000);
+                const { startTime, endTime } = startTimer(60 * 60 * 1000);
 
                 // # update startTime and endTime using server action
                 await updateSessionData({

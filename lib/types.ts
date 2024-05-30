@@ -7,6 +7,7 @@ export interface ServerMessage {
   name?: string;
   role: "user" | "assistant" | "system" | "function" | "data" | "tool";
   content: string;
+  createdAt?: Date;
 }
 
 export interface ClientMessage {
@@ -23,7 +24,6 @@ export type AIState = {
     name: string;
     isFinished: boolean;
     totalTime: string;
-    finishedAt: Date | null;
     docs: DocumentItemIncluded[];
     job: JobItemIncluded | null;
     additionalInfo: string | null;

@@ -48,9 +48,8 @@ enum PricingPlanInterval {
 }
 
 enum UserType {
-  interviewer
-  interviewee
-  copilot
+  user
+  assistant
 }
 
 enum DocumentType {
