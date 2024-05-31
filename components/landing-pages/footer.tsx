@@ -43,6 +43,39 @@ export function Footer() {
               </li>
             </ul>
           </div>
+
+          <div>
+            <h2 className="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">
+              Others
+            </h2>
+
+            <ul className="gap-2 grid">
+              <li>
+                <Link
+                  href="/#"
+                  className="cursor-pointer text-gray-400 hover:text-gray-600 hover:opacity-90 duration-200"
+                >
+                  Tutorial
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/#"
+                  className="cursor-pointer text-gray-400 hover:text-gray-600 hover:opacity-90 duration-200"
+                >
+                  Change Log
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/#"
+                  className="cursor-pointer text-gray-400 hover:text-gray-600 hover:opacity-90 duration-200"
+                >
+                  Referral Program
+                </Link>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
 

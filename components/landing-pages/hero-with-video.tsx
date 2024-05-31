@@ -37,13 +37,13 @@ export function HeroWithVideo() {
 
       <div className="relative bg-white">
         <div className="relative overflow-hidden pt-16">
-          <div className="mx-auto max-w-7xl text-center cursor-pointer">
+          <div className="mx-auto max-w-10xl text-center cursor-pointer border rounded-xl border-solid border-zinc-100 shadow-2xl">
             <div className="relative rounded-xl">
               <BorderBeam />
 
               <video
                 src="copilot-demo1.mp4"
-                className="mb-[-12%] rounded-xl shadow-2xl ring-1 ring-gray-900/10"
+                className="rounded-xl shadow-2xl"
                 autoPlay
                 loop
                 muted

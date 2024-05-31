@@ -19,7 +19,8 @@ const faq = [
   },
   {
     question: "Which online meeting platform are supported?",
-    answer: "Any major platform that has access to the web.",
+    answer:
+      "We support major platform that has access to the web browser, eg: Zoom, Google Meet, Teams, WebEX, and more...",
   },
   {
     question: "Are there free trial?",
@@ -35,6 +36,11 @@ const faq = [
     question: "Is there any transcription for previous interview session?",
     answer:
       "We provide data protection standards, Interview Copilot does not retain any interview transcriptions, but however user have the option to download interview report for each session. User should know that download option will only happen after the session ends, and if page refresh you will not be able to download transcription for the previous session.",
+  },
+  {
+    question: "Does this support mobile device?",
+    answer:
+      "No, this software does not support mobile device, only desktop browser are supported.",
   },
 ];
 
