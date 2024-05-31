@@ -11,6 +11,15 @@ export const SEED_PLANS = [
     image: "https://placehold.co/600x400",
     description: "A free plan for curious users that wants to try our product.",
     active: true,
+    metadata: {
+      features: [
+        "$200 worth of credit",
+        "5 Document Upload",
+        "5 Job Application Creator",
+        "8 Session Creation",
+        "Limited features...",
+      ],
+    },
     price: {
       id: "price_1PLUOpJ58A1yplC4LSZZOMKX",
       active: true,
@@ -24,6 +33,15 @@ export const SEED_PLANS = [
     image: "https://placehold.co/600x400",
     description: "A pro plan for growing businesses.",
     active: true,
+    metadata: {
+      features: [
+        "1000 credit / month",
+        "Unlimited Document Upload",
+        "Unlimited Job Application Creator",
+        "Unlimited Session Creation",
+        "More features...",
+      ],
+    },
     price: {
       id: "price_1PH8sCJ58A1yplC4ySftkaAL",
       active: true,
@@ -38,6 +56,15 @@ export const SEED_PLANS = [
     description:
       "An business plan with advanced features for large organizations.",
     active: true,
+    metadata: {
+      features: [
+        "2000 credit / month",
+        "Unlimited Document Upload",
+        "Unlimited Job Application Creator",
+        "Unlimited Session Creation",
+        "More features...",
+      ],
+    },
     price: {
       id: "price_1PH5WLJ58A1yplC4UUm9QSZB",
       active: true,

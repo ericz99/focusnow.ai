@@ -36,7 +36,7 @@ export function InDepthFeatures() {
         heading="Power your interview session with our AI Interview Copilot"
         description="Allow our copilot to assist you in your interview's journey"
         buttonText="Get Started"
-        videoName="interview-demo.mp4"
+        videoName="copilot-demo.mp4"
         direction="right"
       />
     </div>

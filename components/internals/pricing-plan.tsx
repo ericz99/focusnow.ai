@@ -12,6 +12,7 @@ interface PricingPlanProps {
 }
 
 export function PricingPlan({ products, sub }: PricingPlanProps) {
+  console.log("products", products);
   return (
     <div className="mx-auto grid w-full justify-center gap-8 sm:grid-cols-2 lg:grid-cols-4">
       {products.map((p) => (
@@ -23,13 +24,9 @@ export function PricingPlan({ products, sub }: PricingPlanProps) {
           description={p!.description!}
           unitAmount={p!.price!.unitAmount}
           isBestPlan={p!.name == "Pro Plan"}
-          featureListItems={[
-            "Advanced AI insights",
-            "Priority support",
-            "Unlimited projects",
-            "Access to all AI tools",
-            "Custom integrations",
-          ]}
+          featureListItems={
+            JSON.parse(JSON.stringify(p!.metadata)).features as string[]
+          }
         />
       ))}
     </div>
