@@ -19,9 +19,9 @@ export function HeroWithVideo() {
       </div>
 
       <p className="mx-auto max-w-[64rem] text-balance text-lg tracking-tight text-gray-500 md:text-xl">
-        Revolutionize your hiring with AI Interviewer Copilot. Automate
-        screening, streamline scheduling, and enhance interviews in real-time.
-        Make smarter, faster hiring decisions effortlessly.
+        Transform your hiring process with the AI Interviewer Copilot.
+        Automatically generate real-time transcriptions, and enhance interviews
+        seamlessly. Make smarter, faster hiring decisions with ease.
       </p>
 
       <div className="flex justify-center items-center gap-4 mt-6 mb-4">

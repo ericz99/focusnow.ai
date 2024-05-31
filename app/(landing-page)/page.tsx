@@ -32,9 +32,9 @@ export default async function Page() {
             Simple pricing for everyone.
           </h2>
           <p className="mt-6 text-xl leading-8 text-black/80 dark:text-white">
-            Choose an <strong>affordable plan</strong> that&apos;s packed with
-            the best features for engaging your audience, creating customer
-            loyalty, and driving sales.
+            Choose an <strong>affordable plan</strong> packed with advanced
+            features to enhance your interview process, improve candidate
+            assessment, and streamline hiring decisions.
           </p>
         </div>
 
@@ -46,13 +46,9 @@ export default async function Page() {
               description={p!.description!}
               unitAmount={p!.price!.unitAmount}
               isBestPlan={p!.name == "Pro Plan"}
-              featureListItems={[
-                "Advanced AI insights",
-                "Priority support",
-                "Unlimited projects",
-                "Access to all AI tools",
-                "Custom integrations",
-              ]}
+              featureListItems={
+                JSON.parse(JSON.stringify(p!.metadata)).features as string[]
+              }
             />
           ))}
         </div>
