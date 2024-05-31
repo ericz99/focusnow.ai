@@ -66,10 +66,15 @@ export function CopilotLauncher({
     return documents?.filter((d) => d?.type == "cover_letter");
   }, [documents]);
 
-  const form = useForm<SessionSchema>({
+  const form = useForm<
+    SessionSchema & {
+      additionalInfo?: string;
+    }
+  >({
     resolver: zodResolver(sessionSchema),
     defaultValues: {
       totalTime: "60_M",
+      additionalInfo: "",
     },
   });
 

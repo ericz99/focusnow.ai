@@ -9,8 +9,9 @@ export const columns: ColumnDef<
     id: string;
     createdAt: Date;
     isFinished: boolean;
-    endTime: string;
+    endTime: string | null;
     isActive: boolean;
+    additionalInfo: string | null;
   }
 >[] = [
   {
