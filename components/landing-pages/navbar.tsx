@@ -39,14 +39,14 @@ export function Navbar() {
           href={"#pricing"}
           className="relative text-base w-fit block after:block after:content-[''] after:absolute after:h-[3px] after:bg-black after:w-full after:scale-x-0 after:hover:scale-x-100 after:transition after:duration-300 after:origin-center"
         >
-          Pricing
+          Features
         </Link>
 
         <Link
           href={"#reviews"}
           className="relative text-base w-fit block after:block after:content-[''] after:absolute after:h-[3px] after:bg-black after:w-full after:scale-x-0 after:hover:scale-x-100 after:transition after:duration-300 after:origin-center"
         >
-          Reviews
+          Pricing
         </Link>
 
         <Link

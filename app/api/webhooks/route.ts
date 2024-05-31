@@ -68,6 +68,12 @@ export async function POST(req: Request) {
         case "product.deleted":
           await deleteProduct(product);
           break;
+
+        case "invoice.payment_succeeded":
+          // this is when user successfully paid the subscription or renewal them
+          // we will add additional credit to them, and make clear any usage for the month
+          // update subscription data if needed
+          break;
         case "customer.subscription.created":
           let createdSub = event.data.object as Stripe.Subscription;
           console.log("sub created", createdSub);

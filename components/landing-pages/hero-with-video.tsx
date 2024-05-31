@@ -7,6 +7,7 @@ import Image from "next/image";
 import { PlayCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { BorderBeam } from "@/components/ui/border-beam";
 
 export function HeroWithVideo() {
   return (
@@ -37,7 +38,9 @@ export function HeroWithVideo() {
       <div className="relative bg-white">
         <div className="relative overflow-hidden pt-16">
           <div className="mx-auto max-w-7xl text-center cursor-pointer">
-            <div className="relative">
+            <div className="relative rounded-xl">
+              <BorderBeam />
+
               <Image
                 src={"/demo-v1.png"}
                 alt="demo-v1"

@@ -14,14 +14,14 @@ import Link from "next/link";
 export function FAQ() {
   return (
     <div className="w-full mx-auto max-w-5xl p-8 relative lg:my-12">
-      <div className="flex flex-col items-center gap-8 pb-12">
-        <p className="text-lg font-extrabold">FAQs</p>
-
-        <h1 className="mx-auto max-w-4xl text-6xl font-black text-zinc-800">
+      <div className="mx-auto max-w-5xl text-center mb-8">
+        <h4 className="text-xl font-bold tracking-tight text-black dark:text-white">
+          FAQs
+        </h4>
+        <h2 className="text-5xl font-bold tracking-tight text-black dark:text-white sm:text-6xl">
           Frequently Asked Questions
-        </h1>
-
-        <p className="text-lg font-light">
+        </h2>
+        <p className="mt-6 text-xl leading-8 text-black/80 dark:text-white">
           Need help with something? Here are some of the most common questions
           we get.
         </p>

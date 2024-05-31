@@ -11,11 +11,25 @@ import {
 } from "@/prisma/db/session";
 
 import { removeCreditFromUser } from "@/prisma/db/credit";
+import { getUser } from "@/prisma/db/user";
 
 export const createSessionActive = async (data: SessionSchema) => {
   "use server";
 
   const user = await checkAuth();
+
+  const userData = await getUser({
+    supaUserId: user.id,
+  });
+
+  // # if credit is not at bare minimum of 25
+  if (userData!.credit < 25) {
+    return {
+      error:
+        "Not enough credit, please purchase more credit or consider upgrading to a bigger plan.",
+    };
+  }
+
   const session = await createSession({
     ...data,
     userId: user.id,
@@ -25,12 +39,28 @@ export const createSessionActive = async (data: SessionSchema) => {
     throw new Error("Failed to create interview session, check log!");
 
   revalidatePath("/app/interview", "page");
+
+  return {
+    error: null,
+  };
 };
 
 export const consumeCredit = async (sessionId: string) => {
   "use server";
 
   const user = await checkAuth();
+
+  const userData = await getUser({
+    supaUserId: user.id,
+  });
+
+  // # if credit is not at bare minimum of 25
+  if (userData!.credit < 25) {
+    return {
+      error:
+        "Not enough credit, please purchase more credit or consider upgrading to a bigger plan.",
+    };
+  }
 
   await removeCreditFromUser({
     userId: user.id,
@@ -42,6 +72,10 @@ export const consumeCredit = async (sessionId: string) => {
   });
 
   revalidatePath("/app/interview", "page");
+
+  return {
+    error: null,
+  };
 };
 
 export const updateSessionData = async (data: {

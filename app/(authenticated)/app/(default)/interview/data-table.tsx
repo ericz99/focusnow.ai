@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { CircleX } from "lucide-react";
 
 import {
   ColumnDef,
@@ -44,6 +45,7 @@ import { SessionItemIncluded } from "@/prisma/db/session";
 import { consumeCredit } from "./actions";
 import { Separator } from "@/components/ui/separator";
 import { SessionTimer } from "@/components/internals/session-timer";
+import { toast } from "sonner";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -180,7 +182,19 @@ export function DataTable<TData, TValue>({
                                 </AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={async () => {
-                                    await consumeCredit(org!.id);
+                                    const { error } = await consumeCredit(
+                                      org!.id
+                                    );
+
+                                    if (error) {
+                                      toast(error, {
+                                        icon: <CircleX />,
+                                        className: "mr-12",
+                                      });
+                                      setOpenDialog(false);
+                                      return;
+                                    }
+
                                     router.push(`/app/session/${org?.id}`);
                                   }}
                                 >

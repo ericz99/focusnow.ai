@@ -41,7 +41,14 @@ import { SessionSchema, sessionSchema } from "@/prisma/db/session";
 interface CopilotLauncherProps {
   documents: DocumentItemIncluded[] | null;
   jobs: JobItemIncluded[] | null;
-  createSessionAction: (data: SessionSchema) => Promise<void>;
+  createSessionAction: (data: SessionSchema) => Promise<
+    | {
+        error: string;
+      }
+    | {
+        error: null;
+      }
+  >;
 }
 
 export function CopilotLauncher({
@@ -67,10 +74,16 @@ export function CopilotLauncher({
   });
 
   const onSubmit = async (values: SessionSchema) => {
-    await createSessionAction(values);
+    const { error } = await createSessionAction(values);
+
+    if (error) {
+      toast(error);
+    } else {
+      toast("Created interview session!");
+    }
+
     setShowCopilotDialog(false);
     form.reset();
-    toast("Created interview session!");
   };
 
   return (
@@ -107,7 +120,11 @@ export function CopilotLauncher({
                     <FormItem>
                       <FormLabel>Name (Required) *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Session Name" {...field} />
+                        <Input
+                          placeholder="Session Name"
+                          {...field}
+                          autoComplete="off"
+                        />
                       </FormControl>
 
                       <FormMessage />

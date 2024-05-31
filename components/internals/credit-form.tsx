@@ -21,12 +21,14 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { PriceItemIncluded } from "@/prisma/db/price";
+import { cn } from "@/lib/utils";
 
 interface CreditFormProps {
   price?: PriceItemIncluded;
+  textButton?: string;
 }
 
-export function CreditForm({ price }: CreditFormProps) {
+export function CreditForm({ price, textButton }: CreditFormProps) {
   const [quantity, setQuantity] = useState<number>(1);
   const currentPath = usePathname();
 
@@ -46,8 +48,12 @@ export function CreditForm({ price }: CreditFormProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant={"ghost"} size={"icon"}>
-          <Plus size={20} />
+        <Button
+          variant={textButton ? "default" : "ghost"}
+          size={textButton ? "lg" : "icon"}
+          className={cn(textButton && "w-full")}
+        >
+          {textButton ? textButton : <Plus size={20} />}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

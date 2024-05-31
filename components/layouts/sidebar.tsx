@@ -16,6 +16,7 @@ import type { SubscriptionItemIncluded } from "@/prisma/db/subscription";
 import { BillingFormButton } from "@/components/internals/billing-form-button";
 import { CreditUsage } from "@/components/internals/credit-usage";
 import type { PriceItemIncluded } from "@/prisma/db/price";
+import { CreditNotification } from "@/components/internals/credit-notification";
 
 interface SidebarProps {
   sub: SubscriptionItemIncluded;
@@ -76,10 +77,14 @@ export function Sidebar({ sub, pricings, credit }: SidebarProps) {
 
         <Separator className="my-6" />
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 flex-1">
           <CreditUsage sub={sub} price={creditOnlyPrice} credit={credit} />
           <BillingFormButton sub={sub} />
         </div>
+
+        {(credit == 0 || credit < 25) && (
+          <CreditNotification price={creditOnlyPrice} />
+        )}
       </div>
     </div>
   );

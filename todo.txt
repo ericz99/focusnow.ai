@@ -78,7 +78,7 @@ new account get free 200$ credit by default = 8 session
         - doing something called deferred changes, meaning it will take effect at the next billing cycle, and will carry
         over the remaining unused credit
     - the revalidate cache is not working, it needs to be update in the client side
-    - need to add credit to user that subscribe to plans
-    - need to validate if user have enough credit to launch a session
-    - need to save transcription in the database
+    - need to add credit to user that subscribe to plans - done
+    - need to validate if user have enough credit to launch a session - done
+    - need to save transcription in the database - done
     - list all payment transcriptions including one time payment, subscriptions invoices and etc - not important
