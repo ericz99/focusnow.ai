@@ -30,24 +30,24 @@ import { Table } from "vectordb";
 export const createDocumentAction = async (formData: FormData) => {
   "use server";
 
-  const db = await getClient();
-  const tables = await db.tableNames();
+  // const db = await getClient();
+  // const tables = await db.tableNames();
 
-  const hasTable = tables.find((t) => t == "doc-table");
-  let table: Table<unknown> | null = null;
+  // const hasTable = tables.find((t) => t == "doc-table");
+  // let table: Table<unknown> | null = null;
 
-  if (!hasTable || !tables.length) {
-    table = await db.createTable({
-      name: "doc-table",
-      schema: new Schema([
-        new Field("id", new Utf8()),
-        new Field("key", new Utf8()),
-        new Field("content", new Utf8()),
-      ]),
-    });
-  } else {
-    table = await db.openTable("doc-table");
-  }
+  // if (!hasTable || !tables.length) {
+  //   table = await db.createTable({
+  //     name: "doc-table",
+  //     schema: new Schema([
+  //       new Field("id", new Utf8()),
+  //       new Field("key", new Utf8()),
+  //       new Field("content", new Utf8()),
+  //     ]),
+  //   });
+  // } else {
+  //   table = await db.openTable("doc-table");
+  // }
 
   const files = formData.getAll("files") as File[];
   const type = formData.get("type") as "resume" | "cover_letter";
@@ -138,15 +138,15 @@ export const createDocumentAction = async (formData: FormData) => {
     // # run in parallel?
     await Promise.all(
       _tempData.chunks.map(async (chunk, idx) => {
-        // # add into lance
-        table.add([
-          {
-            vector: embeddings[idx],
-            id: `${key}_idx_chunk_${idx}`,
-            key,
-            content: chunk,
-          },
-        ]);
+        // // # add into lance
+        // table.add([
+        //   {
+        //     vector: embeddings[idx],
+        //     id: `${key}_idx_chunk_${idx}`,
+        //     key,
+        //     content: chunk,
+        //   },
+        // ]);
 
         // # create document chunk
         await createDocumentChunk({
@@ -164,32 +164,38 @@ export const createDocumentAction = async (formData: FormData) => {
   revalidatePath("/app/documents", "page");
 };
 
-export const deleteDocumentAction = async (data: DocumentItemIncluded[]) => {
+export const deleteDocumentAction = async (
+  data: DocumentItemIncluded[] | string
+) => {
   "use server";
 
-  const fileIds = data.map((d) => d!.fileId);
-  const docIds = data.map((d) => d!.id);
+  if (typeof data == "string") {
+    const {} = data;
+    await Promise.all([deleteDocument(data), utapi.deleteFiles(data)]);
+  } else {
+    const fileIds = data.map((d) => d!.fileId);
 
-  console.log("docids", docIds);
-  const db = await getClient();
-  const table = await db.openTable("doc-table");
+    // const db = await getClient();
+    // const table = await db.openTable("doc-table");
 
-  // # delete all vector associated with key
-  await Promise.all(
-    fileIds.map(async (id) => {
-      // # delete data from vector
-      await table.delete(`key = ${id}`);
-    })
-  );
+    // // # delete all vector associated with key
+    // await Promise.all(
+    //   fileIds.map(async (id) => {
+    //     // # delete data from vector
+    //     await table.delete(`key = ${id}`);
+    //   })
+    // );
 
-  // # delete document w/ chunks
-  await Promise.all(
-    docIds.map(async (id) => {
-      await deleteDocument(id);
-    })
-  );
+    // # delete document w/ chunks
+    await Promise.all(
+      fileIds.map(async (id) => {
+        await deleteDocument(id);
+      })
+    );
 
-  // # delete from uploadthings
-  await utapi.deleteFiles(fileIds);
+    // # delete from uploadthings
+    await utapi.deleteFiles(fileIds);
+  }
+
   revalidatePath("/app/documents", "page");
 };

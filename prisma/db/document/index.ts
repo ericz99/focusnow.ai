@@ -99,13 +99,12 @@ export const createDocumentChunk = async (
   return null;
 };
 
-// TODO: document chunk is not deleting for some reason...
 export const deleteDocument = async (id: string) => {
   try {
     await Promise.all([
       await prisma.document.update({
         where: {
-          id,
+          fileId: id,
         },
         data: {
           documentChunks: {
@@ -118,7 +117,7 @@ export const deleteDocument = async (id: string) => {
       }),
       await prisma.document.delete({
         where: {
-          id,
+          fileId: id,
         },
       }),
     ]);

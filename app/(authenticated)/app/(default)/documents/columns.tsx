@@ -17,6 +17,9 @@ import {
 
 import { Button } from "@/components/ui/button";
 
+import { deleteDocumentAction } from "./actions";
+import { toast } from "sonner";
+
 export const columns: ColumnDef<
   DocumentSchema & {
     createdAt: Date;
@@ -72,6 +75,8 @@ export const columns: ColumnDef<
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
+      const org = row.original;
+
       return (
         <div className="flex flex-1 justify-end">
           <DropdownMenu>
@@ -84,8 +89,28 @@ export const columns: ColumnDef<
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Delete</DropdownMenuItem>
-              <DropdownMenuItem>Download</DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={async () => {
+                  await deleteDocumentAction(org.fileId);
+                  toast(`Successfully deleted resume!`);
+                }}
+              >
+                Delete
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    window
+                      .open(
+                        `${process.env.NEXT_PUBLIC_UPLOADTHING_APP_URL}/${org.fileId}`,
+                        "_blank"
+                      )
+                      ?.focus();
+                  }
+                }}
+              >
+                View
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

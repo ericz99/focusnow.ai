@@ -11,6 +11,33 @@ import {
 } from "@/components/ui/accordion";
 import Link from "next/link";
 
+const faq = [
+  {
+    question: "What is the system requirement to run Interview Pilot Web App?",
+    answer:
+      "All you need is Google Chrome Browser, and make sure its on the latest update to prevent disruption.",
+  },
+  {
+    question: "Which online meeting platform are supported?",
+    answer: "Any major platform that has access to the web.",
+  },
+  {
+    question: "Are there free trial?",
+    answer:
+      "Yes, we offer free plan with $200 credit which can allow you to try out our software to see if its a good fit for you. These credit are not refundable, and can only run 8 times.",
+  },
+  {
+    question: "What is the cancellation policy?",
+    answer:
+      "Our policy does not permit / offer refunds. Any unused credits will not expire, please note to cancel an subscription, you must do it in the dashboard, and you will not be charged if cancelled. Please visit our terms and conditions below.",
+  },
+  {
+    question: "Is there any transcription for previous interview session?",
+    answer:
+      "We provide data protection standards, Interview Copilot does not retain any interview transcriptions, but however user have the option to download interview report for each session. User should know that download option will only happen after the session ends, and if page refresh you will not be able to download transcription for the previous session.",
+  },
+];
+
 export function FAQ() {
   return (
     <div className="w-full mx-auto max-w-5xl p-8 relative lg:my-12">
@@ -28,63 +55,12 @@ export function FAQ() {
       </div>
 
       <Accordion type="single" collapsible className="w-full">
-        <AccordionItem value="item-1">
-          <AccordionTrigger>Is it accessible?</AccordionTrigger>
-          <AccordionContent>
-            Yes. It adheres to the WAI-ARIA design pattern.
-          </AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="item-2">
-          <AccordionTrigger>Is it styled?</AccordionTrigger>
-          <AccordionContent>
-            Yes. It comes with default styles that matches the other
-            components&apos; aesthetic.
-          </AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="item-3">
-          <AccordionTrigger>Is it animated?</AccordionTrigger>
-          <AccordionContent>
-            Yes. It's animated by default, but you can disable it if you prefer.
-          </AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="item-4">
-          <AccordionTrigger>Is it accessible?</AccordionTrigger>
-          <AccordionContent>
-            Yes. It adheres to the WAI-ARIA design pattern.
-          </AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="item-5">
-          <AccordionTrigger>Is it styled?</AccordionTrigger>
-          <AccordionContent>
-            Yes. It comes with default styles that matches the other
-            components&apos; aesthetic.
-          </AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="item-6">
-          <AccordionTrigger>Is it animated?</AccordionTrigger>
-          <AccordionContent>
-            Yes. It's animated by default, but you can disable it if you prefer.
-          </AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="item-7">
-          <AccordionTrigger>Is it accessible?</AccordionTrigger>
-          <AccordionContent>
-            Yes. It adheres to the WAI-ARIA design pattern.
-          </AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="item-8">
-          <AccordionTrigger>Is it styled?</AccordionTrigger>
-          <AccordionContent>
-            Yes. It comes with default styles that matches the other
-            components&apos; aesthetic.
-          </AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="item-9">
-          <AccordionTrigger>Is it animated?</AccordionTrigger>
-          <AccordionContent>
-            Yes. It's animated by default, but you can disable it if you prefer.
-          </AccordionContent>
-        </AccordionItem>
+        {faq.map((f, i) => (
+          <AccordionItem key={i} value={`item_${i}`}>
+            <AccordionTrigger>{f.question}</AccordionTrigger>
+            <AccordionContent>{f.answer}</AccordionContent>
+          </AccordionItem>
+        ))}
       </Accordion>
     </div>
   );

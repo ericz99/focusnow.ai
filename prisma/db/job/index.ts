@@ -98,3 +98,20 @@ export const archiveJob = async (id: string) => {
 
   return false;
 };
+
+export const restoreJob = async (id: string) => {
+  try {
+    await prisma.job.update({
+      where: {
+        id,
+      },
+      data: {
+        isArchived: false,
+      },
+    });
+  } catch (error) {
+    console.error("error occured", error);
+  }
+
+  return false;
+};

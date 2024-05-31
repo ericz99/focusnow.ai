@@ -5,12 +5,14 @@ import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import { JobCreator } from "@/components/internals/job-creator";
 import { createJobAction, archiveJobAction } from "./actions";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default async function JobsPage() {
   const user = await checkAuth();
   const jobs = await getUserJobs(user.id);
 
-  console.log("jobs", jobs);
+  const newJobs = jobs?.filter((j) => !j.isArchived);
+  const archiveJobs = jobs?.filter((j) => j.isArchived);
 
   return (
     <div className="container flex flex-col relative mx-auto max-w-screen-2xl pt-24 px-4 md:px-8">
@@ -27,7 +29,18 @@ export default async function JobsPage() {
         </div>
       </div>
 
-      <DataTable columns={columns} data={jobs ?? []} />
+      <Tabs defaultValue="active" className="w-full">
+        <TabsList>
+          <TabsTrigger value="active">Active</TabsTrigger>
+          <TabsTrigger value="archive">Archive</TabsTrigger>
+        </TabsList>
+        <TabsContent value="active">
+          <DataTable columns={columns} data={newJobs ?? []} />
+        </TabsContent>
+        <TabsContent value="archive">
+          <DataTable columns={columns} data={archiveJobs ?? []} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

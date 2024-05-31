@@ -28,7 +28,7 @@ export function HeroWithVideo() {
         <Button
           asChild
           size={"lg"}
-          variant={"outline"}
+          variant={"default"}
           className="border border-solid rounded-lg h-10"
         >
           <Link href="/login">Try Now</Link>

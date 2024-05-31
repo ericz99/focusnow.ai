@@ -7,6 +7,7 @@ import {
   archiveJob,
   JobSchema,
   createJob,
+  restoreJob,
 } from "@/prisma/db/job";
 
 export const createJobAction = async (data: JobSchema) => {
@@ -25,17 +26,40 @@ export const createJobAction = async (data: JobSchema) => {
   revalidatePath("/app/jobs", "page");
 };
 
-export const archiveJobAction = async (data: JobItemIncluded[]) => {
+export const archiveJobAction = async (data: JobItemIncluded[] | string) => {
   "use server";
 
-  const ids = data.map((d) => d!.id);
+  if (typeof data == "string") {
+    await archiveJob(data);
+  } else {
+    const ids = data.map((d) => d!.id);
 
-  // # archive all ids
-  await Promise.all(
-    ids.map(async (id) => {
-      await archiveJob(id);
-    })
-  );
+    // # archive all ids
+    await Promise.all(
+      ids.map(async (id) => {
+        await archiveJob(id);
+      })
+    );
+  }
+
+  revalidatePath("/app/jobs", "page");
+};
+
+export const restoreJobAction = async (data: JobItemIncluded[] | string) => {
+  "use server";
+
+  if (typeof data == "string") {
+    await restoreJob(data);
+  } else {
+    const ids = data.map((d) => d!.id);
+
+    // # restore all ids
+    await Promise.all(
+      ids.map(async (id) => {
+        await restoreJob(id);
+      })
+    );
+  }
 
   revalidatePath("/app/jobs", "page");
 };

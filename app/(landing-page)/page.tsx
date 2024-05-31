@@ -3,6 +3,7 @@ import React from "react";
 import { Navbar } from "@/components/landing-pages/navbar";
 import { HeroWithVideo } from "@/components/landing-pages/hero-with-video";
 import { Features } from "@/components/landing-pages/features";
+import { InDepthFeatures } from "@/components/landing-pages/in-depth-features";
 import { FAQ } from "@/components/landing-pages/faq";
 import { Footer } from "@/components/landing-pages/footer";
 import { PricingCard } from "@/components/landing-pages/pricing-card";
@@ -20,7 +21,7 @@ export default async function Page() {
     <div className="flex flex-col relative h-full w-full max-w-7xl mx-auto">
       <Navbar />
       <HeroWithVideo />
-      <Features />
+      <InDepthFeatures />
 
       <div className="flex flex-col gap-4 relative w-full max-w-5xl mx-auto px-4 py-14 md:px-8">
         <div className="mx-auto max-w-5xl text-center mb-8">

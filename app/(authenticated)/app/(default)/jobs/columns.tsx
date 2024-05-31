@@ -14,10 +14,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Button } from "@/components/ui/button";
+import { archiveJobAction, restoreJobAction } from "./actions";
+import { toast } from "sonner";
 
 export const columns: ColumnDef<
   JobSchema & {
+    id: string;
     createdAt: Date;
+    isArchived: boolean;
   }
 >[] = [
   {
@@ -54,6 +58,8 @@ export const columns: ColumnDef<
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
+      const org = row.original;
+
       return (
         <div className="flex flex-1 justify-end">
           <DropdownMenu>
@@ -66,8 +72,26 @@ export const columns: ColumnDef<
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Edit</DropdownMenuItem>
-              <DropdownMenuItem>Archive</DropdownMenuItem>
+              {!org.isArchived && <DropdownMenuItem>Edit</DropdownMenuItem>}
+              {org.isArchived ? (
+                <DropdownMenuItem
+                  onClick={async () => {
+                    await restoreJobAction(org.id);
+                    toast("Successfully restore job application!");
+                  }}
+                >
+                  Restore
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem
+                  onClick={async () => {
+                    await archiveJobAction(org.id);
+                    toast("Successfully archived job application!");
+                  }}
+                >
+                  Archive
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
