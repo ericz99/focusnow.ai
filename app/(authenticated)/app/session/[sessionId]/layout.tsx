@@ -7,7 +7,8 @@ import { getAllTranscript } from "@/prisma/db/transcript";
 import { getJob } from "@/prisma/db/job";
 import { AI } from "./actions";
 import { notFound } from "next/navigation";
-import { ServerMessage } from "@/lib/types";
+import { ServerMessage, UIState } from "@/lib/types";
+import { UserMessage } from "@/components/internals/chat-message";
 
 export default async function SessionLayout({
   children,
@@ -53,6 +54,14 @@ export default async function SessionLayout({
     return new Date(a.createdAt!).getTime() - new Date(b.createdAt!).getTime();
   });
 
+  // # format as clientmessage and feed it into initialUIState
+  const ui = sortedMessages.map((m) => ({
+    id: m.id,
+    value: m.content as string,
+    display: <UserMessage>{m.content}</UserMessage>,
+    role: m.role,
+  })) as UIState;
+
   return (
     <AI
       initialAIState={{
@@ -63,7 +72,7 @@ export default async function SessionLayout({
         },
         messages: formatMessages ?? [],
       }}
-      initialUIState={[]}
+      initialUIState={ui}
     >
       {children}
     </AI>
