@@ -34,14 +34,14 @@ export function PricingCard({
   return (
     <div
       className={cn(
-        "relative flex w-full max-w-[400px] flex-col gap-4 overflow-hidden rounded-2xl border border-solid border-zinc-200 p-4 text-black dark:text-white",
+        "relative flex w-full max-w-[500px] flex-col gap-8 overflow-hidden rounded-2xl border border-solid border-zinc-200 p-4 text-black dark:text-white",
         isBestPlan && "border-2 shadow-xl border-black shadow-emerald-400"
       )}
     >
       <div className="flex items-center">
         <div className="ml-4">
           <h2 className="text-base font-semibold leading-7">{name}</h2>
-          <p className="h-16 text-sm leading-5 text-black/70 dark:text-white">
+          <p className="h-16 text-xs leading-5 text-black/70 dark:text-white">
             {description}
           </p>
         </div>
@@ -51,7 +51,7 @@ export function PricingCard({
         className="flex flex-row gap-1"
         style={{ opacity: 1, transform: "none" }}
       >
-        <span className="text-4xl font-bold text-black dark:text-white">
+        <span className="text-3xl font-bold text-black dark:text-white">
           ${unitAmount}
           {!isFree && <span className="text-xs">/Month</span>}
         </span>

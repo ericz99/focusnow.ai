@@ -23,7 +23,7 @@ export default async function Page() {
       <HeroWithVideo />
       <InDepthFeatures />
 
-      <div className="flex flex-col gap-4 relative w-full max-w-5xl mx-auto px-4 py-14 md:px-8">
+      <div className="flex flex-col gap-4 relative w-full max-w-7xl mx-auto px-4 py-14 md:px-8">
         <div className="mx-auto max-w-5xl text-center mb-8">
           <h4 className="text-xl font-bold tracking-tight text-black dark:text-white">
             Pricing
@@ -38,7 +38,7 @@ export default async function Page() {
           </p>
         </div>
 
-        <div className="mx-auto grid w-full justify-center gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mx-auto grid w-full justify-center gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {recurringPlans?.map((p) => (
             <PricingCard
               key={p!.id}

@@ -17,6 +17,7 @@ interface PricingCardProps {
   isBestPlan?: boolean;
   price: PriceItemIncluded;
   sub: SubscriptionItemIncluded;
+  intervalCount: number;
 }
 
 export function PricingCard({
@@ -28,6 +29,7 @@ export function PricingCard({
   isBestPlan,
   price,
   sub,
+  intervalCount,
 }: PricingCardProps) {
   const [priceIdLoading, setPriceIdLoading] = useState<string>();
 
@@ -62,7 +64,7 @@ export function PricingCard({
       >
         <span className="text-4xl font-bold text-black dark:text-white">
           ${unitAmount}
-          {!isFree && <span className="text-xs">/Month</span>}
+          {!isFree && <span className="text-xs">/ {intervalCount} Month</span>}
         </span>
       </div>
 

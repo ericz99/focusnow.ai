@@ -3,8 +3,6 @@
 import Stripe from "stripe";
 import { stripe } from "@/lib/stripe/config";
 import { getUserData } from "@/prisma/db/user";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getURL, calculateTrialEndUnixTimestamp } from "@/lib/utils";
 

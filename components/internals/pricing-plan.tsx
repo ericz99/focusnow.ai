@@ -24,6 +24,7 @@ export function PricingPlan({ products, sub }: PricingPlanProps) {
           description={p!.description!}
           unitAmount={p!.price!.unitAmount}
           isBestPlan={p!.name == "Pro Plan"}
+          intervalCount={p!.price!.intervalCount}
           featureListItems={
             JSON.parse(JSON.stringify(p!.metadata)).features as string[]
           }

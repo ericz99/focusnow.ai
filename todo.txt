@@ -82,3 +82,9 @@ new account get free 200$ credit by default = 8 session
     - need to validate if user have enough credit to launch a session - done
     - need to save transcription in the database - done
     - list all payment transcriptions including one time payment, subscriptions invoices and etc - not important
+
+- todo - 5/31/2024
+
+- use resend for any email marketing, waitlist
+    create a script that send out all email to registered users like promotion, features, updates or whatever
+    it will can be globally used

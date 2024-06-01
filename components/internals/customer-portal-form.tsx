@@ -63,7 +63,7 @@ export function CustomerPortalForm({ sub }: CustomerPortalFormProps) {
         <CardContent className="p-0">
           <div className="mt-8 mb-4 font-semibold text-xl">
             {sub ? (
-              `$${sub?.price?.unitAmount}/${sub?.price?.interval}`
+              `$${sub?.price?.unitAmount} / ${sub?.price?.intervalCount} ${sub?.price?.interval}`
             ) : (
               <Link href="/#">Choose your plan</Link>
             )}
