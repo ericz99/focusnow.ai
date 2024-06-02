@@ -78,12 +78,12 @@ export async function POST(req: NextRequest) {
           // update subscription data if needed
           break;
         case "customer.subscription.created":
-          let createdSub = event.data.object as Stripe.Subscription;
-          console.log("sub created", createdSub);
-          await manageSubscriptionStatusChange(
-            createdSub.id,
-            createdSub.customer as string
-          );
+          // let createdSub = event.data.object as Stripe.Subscription;
+          // console.log("sub created", createdSub);
+          // await manageSubscriptionStatusChange(
+          //   createdSub.id,
+          //   createdSub.customer as string
+          // );
           break;
         case "customer.subscription.updated":
           break;

@@ -3,6 +3,7 @@ import { User } from "@supabase/supabase-js";
 import { prisma } from "..";
 import { stripe } from "@/lib/stripe/config";
 import { PRICES } from "@/config/stripe";
+import { manageSubscriptionStatusChange } from "../subscription";
 
 export const magicLinkSchema = z.object({
   email: z.string().email(),
@@ -131,7 +132,7 @@ export const createNewUser = async ({ supaUserId, email }: NewUserSchema) => {
 
     // # create new subscription for user = free plan $0 / month
     // # after this is created, it will then be triggered by the webhook where we will store it in the database
-    await stripe.subscriptions.create({
+    const sub = await stripe.subscriptions.create({
       customer: stripeCustomer.id,
       items: [
         {
@@ -139,6 +140,9 @@ export const createNewUser = async ({ supaUserId, email }: NewUserSchema) => {
         },
       ],
     });
+
+    // # update / create subscription for user
+    await manageSubscriptionStatusChange(sub.id, sub.customer as string);
 
     return user;
   } catch (error) {
