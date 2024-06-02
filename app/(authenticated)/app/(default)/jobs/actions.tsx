@@ -8,6 +8,7 @@ import {
   JobSchema,
   createJob,
   restoreJob,
+  updateJob,
 } from "@/prisma/db/job";
 
 export const createJobAction = async (data: JobSchema) => {
@@ -59,6 +60,22 @@ export const restoreJobAction = async (data: JobItemIncluded[] | string) => {
         await restoreJob(id);
       })
     );
+  }
+
+  revalidatePath("/app/jobs", "page");
+};
+
+export const editJobAction = async (
+  data: JobSchema & {
+    id: string;
+  }
+) => {
+  "use server";
+
+  const job = await updateJob(data);
+
+  if (!job) {
+    throw new Error("Failed to update job, check log!");
   }
 
   revalidatePath("/app/jobs", "page");

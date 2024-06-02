@@ -4,8 +4,9 @@ import { getUserJobs } from "@/prisma/db/job";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import { JobCreator } from "@/components/internals/job-creator";
-import { createJobAction, archiveJobAction } from "./actions";
+import { createJobAction } from "./actions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { JobForm } from "@/components/internals/job-form";
 
 export default async function JobsPage() {
   const user = await checkAuth();

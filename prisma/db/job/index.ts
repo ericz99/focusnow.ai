@@ -115,3 +115,28 @@ export const restoreJob = async (id: string) => {
 
   return false;
 };
+
+export const updateJob = async (
+  data: JobSchema & {
+    id: string;
+  }
+) => {
+  const { id, ...rest } = data;
+
+  try {
+    const job = await prisma.job.update({
+      where: {
+        id,
+      },
+      data: {
+        ...rest,
+      },
+    });
+
+    return job;
+  } catch (error) {
+    console.error("error occured", error);
+  }
+
+  return null;
+};

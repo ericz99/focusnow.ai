@@ -91,6 +91,11 @@ new account get free 200$ credit by default = 8 session
 
 - edit job application
 
-- fix subscription update ui, not updating properly when changing subscription
+- fix subscription update ui, not updating properly when changing subscription - done
 
 - add rate limit to prevent bad actor - use upstash
+
+---------------
+
+uploadthings = 10$ month
+upstash=

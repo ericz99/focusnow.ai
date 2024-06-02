@@ -19,9 +19,34 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+import { JobForm } from "@/components/internals/job-form";
+
+import { Button } from "@/components/ui/button";
+import { archiveJobAction, restoreJobAction, editJobAction } from "./actions";
+
 import { DataTableViewOptions } from "@/components/internals/data-table-view-options";
 import { DataTablePagination } from "@/components/internals/data-table-pagination";
 import { DocumentItemIncluded } from "@/prisma/db/document";
+import { EllipsisVertical } from "lucide-react";
+import { JobItemIncluded } from "@/prisma/db/job";
+import { toast } from "sonner";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -34,6 +59,7 @@ export function DataTable<TData, TValue>({
   data,
   action,
 }: DataTableProps<TData, TValue>) {
+  const [isEditOpen, setEditOpen] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
 
   const table = useReactTable({
@@ -77,22 +103,90 @@ export function DataTable<TData, TValue>({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className="border-b hover:bg-zinc-100 h-12 border-solid border-zinc-300"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+              table.getRowModel().rows.map((row) => {
+                const org = row.original as JobItemIncluded;
+
+                const fields = {
+                  id: org!.id,
+                  position: org!.position,
+                  company: org!.company,
+                  companyDetail: org!.companyDetail,
+                  jobDescription: org!.jobDescription,
+                };
+
+                return (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                    className="border-b hover:bg-zinc-100 h-12 border-solid border-zinc-300"
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+
+                    <TableCell>
+                      <div className="flex flex-1 justify-center items-center gap-2 h-full">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <span className="sr-only">Open menu</span>
+                              <EllipsisVertical size={20} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {!org!.isArchived && (
+                              <DropdownMenuItem
+                                onClick={() => setEditOpen(true)}
+                              >
+                                Edit
+                              </DropdownMenuItem>
+                            )}
+                            {org!.isArchived ? (
+                              <DropdownMenuItem
+                                onClick={async () => {
+                                  await restoreJobAction(org!.id);
+                                  toast(
+                                    "Successfully restore job application!"
+                                  );
+                                }}
+                              >
+                                Restore
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem
+                                onClick={async () => {
+                                  await archiveJobAction(org!.id);
+                                  toast(
+                                    "Successfully archived job application!"
+                                  );
+                                }}
+                              >
+                                Archive
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+
+                      <Dialog open={isEditOpen} onOpenChange={setEditOpen}>
+                        <JobForm
+                          action={editJobAction}
+                          formAction={"update"}
+                          fields={fields}
+                          onClose={() => setEditOpen(false)}
+                        />
+                      </Dialog>
                     </TableCell>
-                  ))}
-                </TableRow>
-              ))
+                  </TableRow>
+                );
+              })
             ) : (
               <TableRow>
                 <TableCell
