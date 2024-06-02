@@ -6,6 +6,7 @@ import { CustomerPortalForm } from "@/components/internals/customer-portal-form"
 import { getProducts } from "@/prisma/db/product";
 import { PricingPlan } from "@/components/internals/pricing-plan";
 import { Separator } from "@/components/ui/separator";
+import { updateSubscription } from "./actions";
 
 export default async function BillingPage() {
   const user = await checkAuth();
@@ -25,7 +26,11 @@ export default async function BillingPage() {
 
       <Separator className="mb-8" />
 
-      <PricingPlan sub={sub} products={recurringPlans ?? []} />
+      <PricingPlan
+        sub={sub}
+        products={recurringPlans ?? []}
+        updateSubscription={updateSubscription}
+      />
     </div>
   );
 }

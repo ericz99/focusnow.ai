@@ -81,7 +81,6 @@ export const updateSubscriptionStatusChange = async (
   } catch (error) {
     console.error(error);
   }
-
   return null;
 };
 

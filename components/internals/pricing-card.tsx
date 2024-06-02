@@ -5,8 +5,10 @@ import { CircleCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { PriceItemIncluded } from "@/prisma/db/price";
-import { updateSubscription } from "@/lib/stripe/server";
+import { updateSubscription as stripeUpdateSub } from "@/lib/stripe/server";
 import { SubscriptionItemIncluded } from "@/prisma/db/subscription";
+import { toast } from "sonner";
+import Stripe from "stripe";
 
 interface PricingCardProps {
   name: string;
@@ -18,6 +20,14 @@ interface PricingCardProps {
   price: PriceItemIncluded;
   sub: SubscriptionItemIncluded;
   intervalCount: number;
+  updateSubscription: (sub: Stripe.Subscription | undefined) => Promise<
+    | {
+        error: string;
+      }
+    | {
+        error: null;
+      }
+  >;
 }
 
 export function PricingCard({
@@ -30,16 +40,27 @@ export function PricingCard({
   price,
   sub,
   intervalCount,
+  updateSubscription,
 }: PricingCardProps) {
   const [priceIdLoading, setPriceIdLoading] = useState<string>();
 
   const handleStripeCheckout = async (price: PriceItemIncluded) => {
     setPriceIdLoading(price!.id);
-
-    // # update the subscription
-    await updateSubscription(price, sub!.id, sub!.user.stripeUserId!);
-
+    const updatedSub = await stripeUpdateSub(
+      price,
+      sub!.id,
+      sub!.user.stripeUserId!
+    );
     setPriceIdLoading(undefined);
+
+    if (!updatedSub) {
+      toast("Something happened, please retry again or contact support!");
+      return;
+    }
+
+    const parsed = JSON.parse(updatedSub!) as Stripe.Subscription;
+    await updateSubscription(parsed);
+    toast("Succesfully updated subscription!");
   };
 
   return (

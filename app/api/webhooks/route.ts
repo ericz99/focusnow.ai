@@ -23,6 +23,7 @@ const relevantEvents = new Set([
   "customer.subscription.created",
   "customer.subscription.updated",
   "customer.subscription.deleted",
+  "invoice.payment_succeeded",
 ]);
 
 export async function POST(req: NextRequest) {
@@ -71,6 +72,7 @@ export async function POST(req: NextRequest) {
           break;
 
         case "invoice.payment_succeeded":
+          console.log("invoice completed");
           // this is when user successfully paid the subscription or renewal them
           // we will add additional credit to them, and make clear any usage for the month
           // update subscription data if needed
@@ -84,12 +86,6 @@ export async function POST(req: NextRequest) {
           );
           break;
         case "customer.subscription.updated":
-          const updatedSub = event.data.object as Stripe.Subscription;
-          console.log("updated sub");
-          await updateSubscriptionStatusChange(
-            updatedSub.id,
-            updatedSub.customer as string
-          );
           break;
         case "customer.subscription.deleted":
           const subscription = event.data.object as Stripe.Subscription;
@@ -147,6 +143,8 @@ export async function POST(req: NextRequest) {
       status: 400,
     });
   }
+
+  revalidatePath("/", "layout");
 
   return new Response(JSON.stringify({ received: true }));
 }

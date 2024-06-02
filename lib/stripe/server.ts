@@ -88,7 +88,7 @@ export async function updateSubscription(
       default_payment_method: "",
     });
 
-    console.log("updated sub", sub);
+    return JSON.stringify(sub);
   } catch (error) {
     if (error instanceof Error) {
       console.error(error);
