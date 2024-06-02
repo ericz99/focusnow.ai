@@ -83,7 +83,7 @@ export const SEED_PLANS = [
     id: "prod_Q7KASBVQG5Qgv8",
     image: "https://placehold.co/600x400",
     description:
-      "An FAANG plan comes with 500 credit per month, and can be used for up to 20 interview session.",
+      "An FAANG plan comes with 500 credit per 6 month, and can be used for up to 20 interview session.",
     active: true,
     metadata: {
       features: [
