@@ -15,6 +15,7 @@ interface PricingCardProps {
   isFree?: boolean;
   featureListItems: string[];
   isBestPlan?: boolean;
+  price: PriceItemIncluded;
 }
 
 export function PricingCard({
@@ -24,6 +25,7 @@ export function PricingCard({
   isFree,
   unitAmount,
   isBestPlan,
+  price,
 }: PricingCardProps) {
   const router = useRouter();
 
@@ -53,7 +55,11 @@ export function PricingCard({
       >
         <span className="text-3xl font-bold text-black dark:text-white">
           ${unitAmount}
-          {!isFree && <span className="text-xs">/Month</span>}
+          {!isFree && (
+            <span className="text-xs">
+              / {price?.intervalCount} {price?.interval}
+            </span>
+          )}
         </span>
       </div>
 

@@ -9,6 +9,7 @@ import {
 } from "@/prisma/db/subscription";
 import { createPayment } from "@/prisma/db/payment";
 import { addCreditToUser } from "@/prisma/db/credit";
+import { NextRequest } from "next/server";
 import { revalidatePath } from "next/cache";
 
 const relevantEvents = new Set([
@@ -24,7 +25,7 @@ const relevantEvents = new Set([
   "customer.subscription.deleted",
 ]);
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const body = await req.text();
   const sig = req.headers.get("stripe-signature") as string;
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -84,6 +85,7 @@ export async function POST(req: Request) {
           break;
         case "customer.subscription.updated":
           const updatedSub = event.data.object as Stripe.Subscription;
+          console.log("updated sub");
           await updateSubscriptionStatusChange(
             updatedSub.id,
             updatedSub.customer as string
@@ -95,6 +97,7 @@ export async function POST(req: Request) {
             subscription.id,
             subscription.customer as string
           );
+
           break;
         case "checkout.session.completed":
           const checkoutSession = event.data.object as Stripe.Checkout.Session;
@@ -144,8 +147,6 @@ export async function POST(req: Request) {
       status: 400,
     });
   }
-
-  revalidatePath("/", "layout");
 
   return new Response(JSON.stringify({ received: true }));
 }

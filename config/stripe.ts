@@ -91,7 +91,7 @@ export const SEED_PLANS = [
         "Advanced AI Model",
         "Unlimited Document Upload",
         "Unlimited Job Application Creator",
-        "Up to only 10 interview session (25 credit)",
+        "Up to only 12 interview session (25 credit)",
         "More features...",
       ],
     },

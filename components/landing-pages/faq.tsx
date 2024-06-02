@@ -25,7 +25,7 @@ const faq = [
   {
     question: "Are there free trial?",
     answer:
-      "Yes, we offer free plan with $200 credit which can allow you to try out our software to see if its a good fit for you. These credit are not refundable, and can only run 8 times.",
+      "Yes, we offer free plan with $25 credit which can allow you to try out our software to see if its a good fit for you. These credit are not refundable, and can only run 1 times with limited amount of duration.",
   },
   {
     question: "What is the cancellation policy?",

@@ -88,3 +88,9 @@ new account get free 200$ credit by default = 8 session
 - use resend for any email marketing, waitlist
     create a script that send out all email to registered users like promotion, features, updates or whatever
     it will can be globally used
+
+- edit job application
+
+- fix subscription update ui, not updating properly when changing subscription
+
+- add rate limit to prevent bad actor - use upstash

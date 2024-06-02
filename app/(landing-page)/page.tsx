@@ -46,6 +46,7 @@ export default async function Page() {
               description={p!.description!}
               unitAmount={p!.price!.unitAmount}
               isBestPlan={p!.name == "Pro Plan"}
+              price={p!.price}
               featureListItems={
                 JSON.parse(JSON.stringify(p!.metadata)).features as string[]
               }
