@@ -95,7 +95,14 @@ new account get free 200$ credit by default = 8 session
 
 - add rate limit to prevent bad actor - use upstash
 
+- add anayltic for the website cookies ad, analytic
+
+- google chrome extension send image to api and process the image for code snippet
+
+- * not important -> Offer an AI-powered tool that reviews and optimizes users' resumes and cover letters for ATS (Applicant Tracking System) compatibility.
+
 ---------------
 
+posthog=ad,analytic,cookie consent
 uploadthings = 10$ month
 upstash=
