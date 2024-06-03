@@ -35,24 +35,17 @@ export function HeroWithVideo() {
         </Button>
       </div>
 
-      <div className="relative bg-white">
-        <div className="relative overflow-hidden pt-16">
-          <div className="mx-auto max-w-10xl text-center cursor-pointer border rounded-xl border-solid border-zinc-100 shadow-2xl">
-            <div className="relative rounded-xl">
-              <BorderBeam />
+      <div className="mx-auto max-w-10xl text-center cursor-pointer">
+        <div className="relative rounded-xl">
+          <BorderBeam size={500} borderWidth={2} />
 
-              <video
-                src="copilot-demo1.mp4"
-                className="rounded-xl shadow-2xl"
-                autoPlay
-                loop
-                muted
-              ></video>
-            </div>
-            {/* <div className="relative">
-              <div className="absolute -inset-x-20 bottom-0 bg-gradient-to-t from-white pt-[10%]" />
-            </div> */}
-          </div>
+          <video
+            src="copilot-demo1.mp4"
+            className="bg-zinc-500 shadow-2xl shadow-zinc-500/50 border border-solid rounded-xl border-zinc-100"
+            autoPlay
+            loop
+            muted
+          ></video>
         </div>
       </div>
     </div>

@@ -14,7 +14,7 @@ export default async function Page() {
 
   // # get only type of recurring
   const recurringPlans = products
-    ?.filter((p) => p.price?.type == "recurring")
+    ?.filter((p) => p.price?.type == "recurring" && p.name !== "Free Plan")
     .reverse();
 
   return (
@@ -36,9 +36,13 @@ export default async function Page() {
             features to enhance your interview process, improve candidate
             assessment, and streamline hiring decisions.
           </p>
+
+          <p className="mt-6 text-xl leading-8 text-black/80 dark:text-white">
+            Try out our <strong>free plan</strong> right now on account sign up!
+          </p>
         </div>
 
-        <div className="mx-auto grid w-full justify-center gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mx-auto grid w-full justify-center gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {recurringPlans?.map((p) => (
             <PricingCard
               key={p!.id}

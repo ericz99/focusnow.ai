@@ -17,7 +17,7 @@ export function InDepthFeatures() {
       <FeatureSection
         title="Job"
         heading="Take a few type and clicks to create a job application"
-        description="Allow the AI to understand the job context."
+        description="Allow the AI Copilot to understand the job context."
         buttonText="Get Started"
         videoName="job-demo.mp4"
         direction="right"
@@ -26,7 +26,7 @@ export function InDepthFeatures() {
       <FeatureSection
         title="Interview"
         heading="Easy way to create an interview session"
-        description="After creating the interview session, you are ready to launch copilot."
+        description="After creating your interview session, you are ready to launch our AI copilot."
         buttonText="Get Started"
         videoName="interview-demo.mp4"
       />

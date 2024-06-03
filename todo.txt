@@ -89,7 +89,7 @@ new account get free 200$ credit by default = 8 session
     create a script that send out all email to registered users like promotion, features, updates or whatever
     it will can be globally used
 
-- edit job application
+- edit job application - done
 
 - fix subscription update ui, not updating properly when changing subscription - done
 
