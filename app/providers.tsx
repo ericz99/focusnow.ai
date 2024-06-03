@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 
 if (typeof window !== "undefined") {
   posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
+    persistence: "localStorage+cookie",
     api_host: "/ingest",
     ui_host: "https://us.posthog.com", // or 'https://eu.posthog.com' if your PostHog is hosted in Europe
   });

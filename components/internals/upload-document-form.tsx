@@ -3,7 +3,8 @@
 
 import { FormEvent, useState, useCallback } from "react";
 import { useDropzone, type FileRejection } from "react-dropzone";
-import { FileIcon, XIcon } from "lucide-react";
+import { FileIcon, Loader2, XIcon } from "lucide-react";
+import { usePostHog } from "posthog-js/react";
 
 import { Button } from "@/components/ui/button";
 
@@ -16,20 +17,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 
 export type UploadButtonFormProps = {
-  action: (formData: FormData) => Promise<void>;
+  action: (formData: FormData) => Promise<
+    | {
+        error: string;
+      }
+    | {
+        error: null;
+      }
+  >;
   userId: string;
+  onClose: () => void;
 };
 
 export default function UploadButtonForm({
   action,
   userId,
+  onClose,
 }: UploadButtonFormProps) {
   const [acceptedFiles, setAcceptedFiles] = useState<File[]>([]);
   const [rejectedFiles, setRejectedFiles] = useState<FileRejection[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [type, setType] = useState<"resume" | "cover_letter">("resume");
+  const posthog = usePostHog();
 
   const onDrop = useCallback(
     (accepts: File[], rejects: FileRejection[]) => {
@@ -54,6 +66,8 @@ export default function UploadButtonForm({
   });
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    // # capture upload document
+    posthog.capture("upload_document_begin");
     e.preventDefault();
     if (!acceptedFiles.length) return;
     const formData = new FormData();
@@ -61,13 +75,16 @@ export default function UploadButtonForm({
     formData.append("userId", userId);
     formData.append("type", type);
     setIsUploading(true);
-    await action(formData);
+    const { error } = await action(formData);
     setIsUploading(false);
-
-    // # TODO if error we should tell user
-    // # clear all files state
     setAcceptedFiles([]);
     setRejectedFiles([]);
+
+    if (error) {
+      toast(error);
+    }
+
+    onClose();
   };
 
   return (
@@ -115,7 +132,14 @@ export default function UploadButtonForm({
       </div>
 
       <Button type="submit" variant={"default"} className="w-full">
-        {isUploading ? "Uploading..." : "Upload"}
+        {isUploading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Uploading
+          </>
+        ) : (
+          "Upload"
+        )}
       </Button>
     </form>
   );

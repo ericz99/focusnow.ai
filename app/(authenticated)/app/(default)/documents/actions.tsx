@@ -5,6 +5,7 @@ import { openai } from "@ai-sdk/openai";
 import { revalidatePath } from "next/cache";
 import { utapi } from "@/server/uploadthing";
 import { Schema, Field, Utf8 } from "apache-arrow";
+import posthogServerClient from "@/server/analytic";
 
 import {
   processCSV,
@@ -26,29 +27,12 @@ import {
 } from "@/prisma/db/document";
 import { getClient } from "@/core/db/lance";
 import { Table } from "vectordb";
+import { checkAuth } from "@/lib/auth";
 
 export const createDocumentAction = async (formData: FormData) => {
   "use server";
 
-  // const db = await getClient();
-  // const tables = await db.tableNames();
-
-  // const hasTable = tables.find((t) => t == "doc-table");
-  // let table: Table<unknown> | null = null;
-
-  // if (!hasTable || !tables.length) {
-  //   table = await db.createTable({
-  //     name: "doc-table",
-  //     schema: new Schema([
-  //       new Field("id", new Utf8()),
-  //       new Field("key", new Utf8()),
-  //       new Field("content", new Utf8()),
-  //     ]),
-  //   });
-  // } else {
-  //   table = await db.openTable("doc-table");
-  // }
-
+  const user = await checkAuth();
   const files = formData.getAll("files") as File[];
   const type = formData.get("type") as "resume" | "cover_letter";
   const userId = formData.get("userId") as string;
@@ -108,7 +92,14 @@ export const createDocumentAction = async (formData: FormData) => {
     const { data, error } = fileResp;
 
     if (error) {
-      throw new Error(error.message);
+      posthogServerClient.capture({
+        distinctId: user.id,
+        event: "upload_document_error",
+      });
+
+      return {
+        error: "Upload failed!",
+      };
     }
 
     const { key, name } = data;
@@ -127,27 +118,9 @@ export const createDocumentAction = async (formData: FormData) => {
       throw new Error("Failed to create document!");
     }
 
-    // # create embedding
-    const { embeddings } = await embedMany({
-      model: openai.embedding("text-embedding-3-large"),
-      values: _tempData.chunks.map((chunk) => chunk.content),
-    });
-
-    console.log(embeddings.length);
-
     // # run in parallel?
     await Promise.all(
       _tempData.chunks.map(async (chunk, idx) => {
-        // // # add into lance
-        // table.add([
-        //   {
-        //     vector: embeddings[idx],
-        //     id: `${key}_idx_chunk_${idx}`,
-        //     key,
-        //     content: chunk,
-        //   },
-        // ]);
-
         // # create document chunk
         await createDocumentChunk({
           fileId: key,
@@ -160,8 +133,11 @@ export const createDocumentAction = async (formData: FormData) => {
     );
   }
 
-  console.log(resp);
   revalidatePath("/app/documents", "page");
+
+  return {
+    error: null,
+  };
 };
 
 export const deleteDocumentAction = async (
