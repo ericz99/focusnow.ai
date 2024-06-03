@@ -5,6 +5,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { CSPostHogProvider } from "./providers";
+import { CookieBanner } from "@/components/internals/cookie-banner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,6 +32,7 @@ export default function RootLayout({
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
             {children}
             <Toaster />
+            <CookieBanner />
           </ThemeProvider>
         </CSPostHogProvider>
       </body>

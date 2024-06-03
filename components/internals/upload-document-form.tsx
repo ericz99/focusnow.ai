@@ -82,6 +82,8 @@ export default function UploadButtonForm({
 
     if (error) {
       toast(error);
+    } else {
+      posthog.capture("upload_document_completed");
     }
 
     onClose();
