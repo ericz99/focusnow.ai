@@ -8,6 +8,7 @@ import { useMediaQuery } from "./use-media-query";
 import { useStreamableText } from "./use-streamable-text";
 import { useCountdown } from "./use-countdown";
 import { usePersistentTimer } from "./use-timer";
+import { useScrollAnchor } from "./use-scroll-anchor";
 
 export {
   useUser,
@@ -20,4 +21,5 @@ export {
   useStreamableText,
   useCountdown,
   usePersistentTimer,
+  useScrollAnchor,
 };

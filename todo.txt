@@ -105,7 +105,9 @@ new account get free 200$ credit by default = 8 session
 
 isFinished => needs  to be written if user is on /app/interview because since the timer ran out already, it need to set isFinished to true
 
-it works, but now its doing duplicate times for some reason, its getting called twice idk why
+it works, but now its doing duplicate times for some reason, its getting called twice idk why - doen
+
+figure out why the scroll to bottom is not working
 ---------------
 
 posthog=ad,analytic,cookie consent

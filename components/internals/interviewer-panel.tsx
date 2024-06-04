@@ -24,7 +24,7 @@ export function InterviewerPanel({ messages }: InterviewerPanelProps) {
         </div>
 
         <div className="h-full w-full flex flex-col relative">
-          <div className="flex-1 mt-8 overflow-hidden">
+          <div className="flex-1 pb-[50px] overflow-hidden">
             <div className="h-full overflow-y-auto w-full">
               {interviewerMessagesOnly.length ? (
                 <div className="flex flex-col pb-9 text-sm">

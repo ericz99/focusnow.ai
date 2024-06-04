@@ -216,9 +216,9 @@ export function DataTable<TData, TValue>({
                             </AlertDialogContent>
                           </AlertDialog>
                         ) : org?.isActive &&
-                          ((org.endTime! &&
-                            new Date().getTime() > Number(org.endTime!)) ||
-                            org.isFinished) ? (
+                          org.endTime! &&
+                          new Date().getTime() > Number(org.endTime!) &&
+                          org.isFinished ? (
                           <div className="flex gap-4">
                             <Button variant={"default"} size={"sm"}>
                               View

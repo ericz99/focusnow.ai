@@ -17,7 +17,6 @@ interface ChatPanelProps {
 
 export function ChatPanel({ id }: ChatPanelProps) {
   const $scrollToBottomRef = useRef<HTMLDivElement>(null);
-  const [_isBottom, setBottomRef] = useScrollToBottom(false);
   const { incomingData, releaseData } = useDataStore();
   const { generateResponse, solveCodeSnippet } = useActions();
   const [messages, setMessages] = useUIState();
@@ -172,7 +171,7 @@ export function ChatPanel({ id }: ChatPanelProps) {
   }, [incomingData, setMessages, messages, releaseData]);
 
   return (
-    <div className="max-w-full p-4 relative h-full w-full flex gap-4">
+    <div className="max-w-full p-8 relative h-full w-full flex gap-4">
       <InterviewerPanel messages={messages} />
       <CopilotPanel messages={messages} receiveData={receiveData} />
     </div>
