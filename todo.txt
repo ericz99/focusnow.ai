@@ -93,7 +93,7 @@ new account get free 200$ credit by default = 8 session
 
 - fix subscription update ui, not updating properly when changing subscription - done
 
-- add rate limit to prevent bad actor - use upstash
+- add rate limit to prevent bad actor - use upstash - add last
 
 - add anayltic for the website cookies ad, analytic
 
@@ -101,6 +101,11 @@ new account get free 200$ credit by default = 8 session
 
 - * not important -> Offer an AI-powered tool that reviews and optimizes users' resumes and cover letters for ATS (Applicant Tracking System) compatibility.
 
+- take care of ddos, using aws WAF, or cloudfront for cdn, or use cloudfare to prevent malicous attacks
+
+isFinished => needs  to be written if user is on /app/interview because since the timer ran out already, it need to set isFinished to true
+
+it works, but now its doing duplicate times for some reason, its getting called twice idk why
 ---------------
 
 posthog=ad,analytic,cookie consent

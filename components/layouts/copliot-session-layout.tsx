@@ -145,7 +145,7 @@ export default function CopilotSessionLayout({
             </div>
 
             <div className="flex h-full w-full overflow-hidden gap-4">
-              <ChatPanel />
+              <ChatPanel id={session!.id} />
             </div>
           </div>
         )

@@ -45,9 +45,9 @@ export function CookieBanner() {
       <div className="w-full max-w-sm absolute bottom-10 right-10 border border-solid bg-slate-700 p-4 rounded-lg">
         <p className="text-sm text-white">
           Our website uses cookies to enhance your browsing experience,
-          personalize content, and analyze our traffic. By clicking "Accept All
-          Cookies," you consent to our use of cookies. You can manage your
-          preferences by clicking "Cookie Settings."
+          personalize content, and analyze our traffic. By clicking "Accept
+          Cookies," you consent to our use of cookies. If you prefer to opt out,
+          you can choose 'Decline Cookies'.
         </p>
 
         <div className="flex gap-4 relative w-full mt-4">
@@ -57,7 +57,7 @@ export function CookieBanner() {
             onClick={handleAcceptCookies}
             className="w-full"
           >
-            Accept cookies
+            Accept Cookies
           </Button>
           <Button
             type="button"
@@ -65,7 +65,7 @@ export function CookieBanner() {
             onClick={handleDeclineCookies}
             className="w-full"
           >
-            Decline cookies
+            Decline Cookies
           </Button>
         </div>
       </div>

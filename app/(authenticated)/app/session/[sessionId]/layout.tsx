@@ -58,7 +58,7 @@ export default async function SessionLayout({
   const ui = sortedMessages.map((m) => ({
     id: m.id,
     value: m.content as string,
-    display: <UserMessage>{m.content}</UserMessage>,
+    display: <UserMessage>{m.content as string}</UserMessage>,
     role: m.role,
   })) as UIState;
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { useActions, useUIState } from "ai/rsc";
 import { nanoid } from "nanoid";
 import { useDataStore } from "@/lib/stores";
@@ -9,13 +9,61 @@ import { useScrollToBottom } from "@/lib/hooks";
 import { UserMessage } from "@/components/internals/chat-message";
 import { CopilotPanel } from "@/components/internals/copilot-panel";
 import { InterviewerPanel } from "@/components/internals/interviewer-panel";
+import { pusherClient } from "@/server/pusher";
 
-export function ChatPanel() {
+interface ChatPanelProps {
+  id: string;
+}
+
+export function ChatPanel({ id }: ChatPanelProps) {
   const $scrollToBottomRef = useRef<HTMLDivElement>(null);
   const [_isBottom, setBottomRef] = useScrollToBottom(false);
   const { incomingData, releaseData } = useDataStore();
-  const { generateResponse } = useActions();
+  const { generateResponse, solveCodeSnippet } = useActions();
   const [messages, setMessages] = useUIState();
+
+  const convertImageToB64 = useCallback(async (url: string) => {
+    // Fetch the image from the URL
+    const response = await fetch(url);
+
+    // Check if the response is ok
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    // Convert the response to a blob
+    const blob = await response.blob();
+
+    // Create a FileReader to read the blob as base64
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        // Get the base64 string
+        const base64String = reader.result as string;
+        // Remove the data URL prefix
+        const base64WithoutPrefix = base64String.split(",")[1];
+        resolve(base64WithoutPrefix);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }, []);
+
+  useEffect(() => {
+    pusherClient.subscribe(`sess_${id}`);
+
+    pusherClient.bind("incoming-data", async (url: string) => {
+      const resp = await convertImageToB64(url);
+
+      const data = await solveCodeSnippet({
+        data: resp,
+      });
+
+      setMessages((cur: ClientMessage[]) => [...cur, data]);
+    });
+
+    return () => pusherClient.unsubscribe(`sess_${id}`);
+  }, [id, setMessages]);
 
   useEffect(() => {
     if ($scrollToBottomRef.current) {

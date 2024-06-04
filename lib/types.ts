@@ -1,12 +1,10 @@
 import { ReactNode } from "react";
 import { DocumentItemIncluded } from "@/prisma/db/document";
 import { JobItemIncluded } from "@/prisma/db/job";
+import { CoreMessage } from 'ai'
 
-export interface ServerMessage {
+export type ServerMessage = CoreMessage & {
   id: string;
-  name?: string;
-  role: "user" | "assistant" | "system" | "function" | "data" | "tool";
-  content: string;
   createdAt?: Date;
 }
 

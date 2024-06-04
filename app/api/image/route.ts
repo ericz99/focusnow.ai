@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse, NextRequest } from "next/server";
-
-export const dynamic = "force-dynamic"; // defaults to auto
+import { Blob, Buffer } from "node:buffer";
+import { pusherServer } from "@/server/pusher";
+import { utapi } from "@/server/uploadthing";
 
 export async function POST(request: NextRequest) {
   const supabase = createClient();
@@ -20,9 +21,32 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // todo
-  const body = await request.json();
-  console.log("body", body);
+  const body = (await request.json()) as {
+    data: string;
+    currentSessionId: string;
+  };
+
+  const { data, currentSessionId } = body;
+
+  const f = new File(
+    [
+      // @ts-ignore
+      Uint8Array.from(atob(data.split(",")[1]!), (m) => m.codePointAt(0)),
+    ],
+    `coding-snippet_${currentSessionId}.png`,
+    { type: "image/png" }
+  );
+
+  const { data: uploadData, error } = await utapi.uploadFiles(f);
+
+  if (error) {
+    throw new Error("Upload failed!");
+  }
+
+  const { url } = uploadData;
+
+  // # send trigger to client
+  pusherServer.trigger(`sess_${currentSessionId}`, "incoming-data", url);
 
   return new Response("ok", {
     status: 200,

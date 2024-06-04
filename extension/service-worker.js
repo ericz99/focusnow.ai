@@ -1,63 +1,50 @@
 console.log("Focusnow.ai - service-worker.js is running on the background!");
 
 let currentTabId = null;
-let ws = null;
-
-function connectWS() {
-  ws = new WebSocket("wss://example.com/ws");
-
-  webSocket.onopen = (event) => {
-    console.log("websocket open");
-    keepAlive();
-  };
-
-  webSocket.onmessage = (event) => {
-    console.log(`websocket received message: ${event.data}`);
-  };
-
-  webSocket.onclose = (event) => {
-    console.log("websocket connection closed");
-    webSocket = null;
-  };
-}
-
-function disconnectWS() {
-  if (ws == null) return;
-  ws.close();
-}
-
-function keepAlive() {
-  const keepAliveIntervalId = setInterval(
-    () => {
-      if (ws) {
-        ws.send("keepalive");
-      } else {
-        clearInterval(keepAliveIntervalId);
-      }
-    },
-    // Set the interval to 20 seconds to prevent the service worker from becoming inactive.
-    20 * 1000
-  );
-}
+let currentSessionId = null;
 
 async function processScreenshot(command) {
   // capture screenshot on visible tab
   const dataUri = await chrome.tabs.captureVisibleTab();
 
-  if (dataUri) {
-    // send data to content tab
-    chrome.tabs.sendMessage(currentTabId, { type: command, data: dataUri });
+  if (dataUri && currentSessionId) {
+    fetch("http://localhost:3000/api/image", {
+      method: "POST",
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({
+        data: dataUri,
+        currentSessionId
+      }),
+    }).catch((err) => console.error(err));
   }
 }
 
-chrome.tabs.onActivated.addListener(function (activeInfo) {
-  console.log('new tab', activeInfo);
+chrome.tabs.onActivated.addListener(async function (activeInfo) {
+  console.log("new tab", activeInfo);
   const { tabId } = activeInfo;
   currentTabId = tabId;
+
+  const [tab] = await chrome.tabs.query({
+    active: true,
+    currentWindow: true
+  })
+
+  const { url } = tab;
+  const patternExtract = /\/app\/session\/(\w+)/;
+  const match = url.match(patternExtract);
+
+  if (match) {
+    const extractedID = match[1]; // The captured group
+    currentSessionId = extractedID;
+  } else {
+    console.log("No ID found in the string.");
+  }
 });
 
 chrome.tabs.onUpdated.addListener(function listener(tabId, changedProps) {
-  console.log('changedprops', changedProps);
+  console.log("changedprops", changedProps);
   // We are waiting for the tab we opened to finish loading.
   if (changedProps.status != "complete") return;
 

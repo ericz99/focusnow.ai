@@ -1,4 +1,5 @@
 import { openai } from "@ai-sdk/openai";
+import { URL } from "node:url";
 import {
   createAI,
   getMutableAIState,
@@ -22,6 +23,7 @@ import {
 import { updateSession } from "@/prisma/db/session";
 import { createTranscript } from "@/prisma/db/transcript";
 import { revalidatePath } from "next/cache";
+import { streamText } from "ai";
 
 export const updateSessionTime = async (data: {
   id: string;
@@ -56,6 +58,7 @@ export const AI = createAI<AIState, UIState>({
   initialUIState: [] as UIState,
   actions: {
     generateResponse,
+    solveCodeSnippet,
   },
   // onGetUIState: async () => {
   //   "use server";
@@ -77,19 +80,170 @@ export const AI = createAI<AIState, UIState>({
 
     console.log("messages", messages);
 
-    const { id } = session;
+    // const { id } = session;
 
-    const lastMessage = messages.at(-1);
+    // const lastMessage = messages.at(-1);
 
-    // # create the last message
-    await createTranscript({
-      sessionId: id,
-      role: lastMessage!.role!,
-      content: lastMessage!.content!,
-      id: lastMessage!.id,
-    });
+    // // # create the last message
+    // await createTranscript({
+    //   sessionId: id,
+    //   role: lastMessage!.role!,
+    //   content: lastMessage!.content! as string,
+    //   id: lastMessage!.id,
+    // });
   },
 });
+
+async function solveCodeSnippet({
+  data,
+  prompt,
+}: {
+  data: string;
+  prompt?: string;
+}) {
+  "use server";
+
+  const state = getMutableAIState<typeof AI>();
+
+  const userMessage: ServerMessage = {
+    id: nanoid(),
+    role: "user",
+    content: [
+      {
+        type: "text",
+        text:
+          prompt ??
+          "Please help me solve this coding problem of the given image.",
+      },
+      {
+        type: "image",
+        image: data,
+      },
+    ],
+  };
+
+  // # update history messages with initial prompt
+  state.update({
+    ...state.get(),
+    messages: [...state.get().messages, userMessage],
+  });
+
+  let textStream: undefined | ReturnType<typeof createStreamableValue<string>>;
+  let textNode: undefined | React.ReactNode;
+
+  const result = await streamUI({
+    model: openai("gpt-4o"),
+    initial: <SpinnerMessage />,
+    system: `
+
+    <initial-system-prompt>: You are an AI interview copilot that will help me answer all question that is related to this behavioral / technical interview. Please use the {CONTEXT} below, if empty string, then ignore context. </initial-system-prompt> \n
+
+    <main-goal> \n
+    
+    You are an experienced developer that is going through a behavioral / technical interview. \n
+
+    You are AI Coding Copilot that help me solve the problem of a given image.
+
+    If you already made a response, on the prompt avoid making additional response to save output token. \n
+
+    </main-goal> \n
+
+    `,
+    messages: [
+      ...state.get().messages.map((m: any) => ({
+        role: m.role,
+        content: m.content,
+        name: m.name,
+      })),
+    ],
+    temperature: 0.8,
+    maxTokens: 1000,
+    text: ({ content, delta, done }) => {
+      console.log(delta);
+
+      if (!textStream) {
+        textStream = createStreamableValue("");
+        textNode = <BotMessage content={textStream.value} />;
+      }
+
+      if (done) {
+        textStream.done();
+        state.done({
+          ...state.get(),
+          messages: [
+            ...state.get().messages,
+            {
+              id: nanoid(),
+              role: "assistant",
+              content,
+            },
+          ],
+        });
+      } else {
+        textStream.update(delta);
+      }
+
+      return textNode;
+    },
+  });
+
+  return {
+    id: nanoid(),
+    role: "assistant",
+    value: result.value as string,
+    display: result.value,
+  };
+}
+
+// async function solveCodeSnippet({
+//   data,
+//   prompt,
+// }: {
+//   data: string;
+//   prompt?: string;
+// }) {
+//   "use server";
+
+//   const userMessage: ServerMessage = {
+//     id: nanoid(),
+//     role: "user",
+//     content: [
+//       {
+//         type: "text",
+//         text:
+//           prompt ??
+//           "Please help me solve this coding problem of the given image.",
+//       },
+//       {
+//         type: "image",
+//         image: data,
+//       },
+//     ],
+//   };
+
+//   let textNode: undefined | React.ReactNode;
+
+//   const streamValue = createStreamableValue();
+
+//   const { textStream } = await streamText({
+//     model: openai("gpt-4o"),
+//     system:
+//       "You are AI Code Copilot, you job is to solve this coding question for me on the given image.",
+//     messages: [userMessage],
+//   });
+
+//   for await (const text of textStream) {
+//     streamValue.update(text);
+//     textNode = <BotMessage content={JSON.stringify(streamValue.value)} />;
+//     console.log(text);
+//   }
+
+//   streamValue.done();
+
+//   return {
+//     display: textNode,
+//   };
+// }
 
 async function generateResponse({ prompt }: { prompt: string }) {
   "use server";
@@ -103,17 +257,16 @@ async function generateResponse({ prompt }: { prompt: string }) {
 
   const { job, additionalInfo } = session;
 
+  const userMessage: ServerMessage = {
+    id: nanoid(),
+    role: "user",
+    content: prompt,
+  };
+
   // # update history messages with initial prompt
   state.update({
     ...state.get(),
-    messages: [
-      ...state.get().messages,
-      {
-        id: nanoid(),
-        role: "user",
-        content: prompt,
-      },
-    ],
+    messages: [...state.get().messages, userMessage],
   });
 
   let textStream: undefined | ReturnType<typeof createStreamableValue<string>>;
@@ -129,7 +282,7 @@ async function generateResponse({ prompt }: { prompt: string }) {
   `;
 
   const result = await streamUI({
-    model: openai("gpt-3.5-turbo"),
+    model: openai("gpt-4o"),
     initial: <SpinnerMessage />,
     system: `
 
@@ -158,8 +311,10 @@ async function generateResponse({ prompt }: { prompt: string }) {
       })),
     ],
     temperature: 0.8,
-    maxTokens: 500,
+    maxTokens: 1000,
     text: ({ content, delta, done }) => {
+      console.log(delta);
+
       if (!textStream) {
         textStream = createStreamableValue("");
         textNode = <BotMessage content={textStream.value} />;

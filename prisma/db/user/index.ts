@@ -126,7 +126,7 @@ export const createNewUser = async ({ supaUserId, email }: NewUserSchema) => {
         email,
         supaUserId,
         stripeUserId: stripeCustomer.id,
-        credit: 200, // default all new user will get 200 credit because they're on the free plan
+        credit: 25, // default all new user will get 25 credit because they're on the free plan
       },
     });
 
