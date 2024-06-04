@@ -24,6 +24,7 @@ import { updateSession } from "@/prisma/db/session";
 import { createTranscript } from "@/prisma/db/transcript";
 import { revalidatePath } from "next/cache";
 import { streamText } from "ai";
+import { z } from "zod";
 
 export const updateSessionTime = async (data: {
   id: string;
@@ -140,11 +141,9 @@ async function solveCodeSnippet({
 
     <main-goal> \n
     
-    You are an experienced developer that is going through a behavioral / technical interview. \n
+    You are AI Coding Copilot that help me solve the coding problem of a given image. \n
 
-    You are AI Coding Copilot that help me solve the problem of a given image.
-
-    If you already made a response, on the prompt avoid making additional response to save output token. \n
+    You must return the solution to the problem, as well as in depth walkthrough explaination of the solution, and step by step to solve the problem. \n
 
     </main-goal> \n
 
@@ -159,8 +158,6 @@ async function solveCodeSnippet({
     temperature: 0.8,
     maxTokens: 1000,
     text: ({ content, delta, done }) => {
-      console.log(delta);
-
       if (!textStream) {
         textStream = createStreamableValue("");
         textNode = <BotMessage content={textStream.value} />;
@@ -194,56 +191,6 @@ async function solveCodeSnippet({
     display: result.value,
   };
 }
-
-// async function solveCodeSnippet({
-//   data,
-//   prompt,
-// }: {
-//   data: string;
-//   prompt?: string;
-// }) {
-//   "use server";
-
-//   const userMessage: ServerMessage = {
-//     id: nanoid(),
-//     role: "user",
-//     content: [
-//       {
-//         type: "text",
-//         text:
-//           prompt ??
-//           "Please help me solve this coding problem of the given image.",
-//       },
-//       {
-//         type: "image",
-//         image: data,
-//       },
-//     ],
-//   };
-
-//   let textNode: undefined | React.ReactNode;
-
-//   const streamValue = createStreamableValue();
-
-//   const { textStream } = await streamText({
-//     model: openai("gpt-4o"),
-//     system:
-//       "You are AI Code Copilot, you job is to solve this coding question for me on the given image.",
-//     messages: [userMessage],
-//   });
-
-//   for await (const text of textStream) {
-//     streamValue.update(text);
-//     textNode = <BotMessage content={JSON.stringify(streamValue.value)} />;
-//     console.log(text);
-//   }
-
-//   streamValue.done();
-
-//   return {
-//     display: textNode,
-//   };
-// }
 
 async function generateResponse({ prompt }: { prompt: string }) {
   "use server";
@@ -313,8 +260,6 @@ async function generateResponse({ prompt }: { prompt: string }) {
     temperature: 0.8,
     maxTokens: 1000,
     text: ({ content, delta, done }) => {
-      console.log(delta);
-
       if (!textStream) {
         textStream = createStreamableValue("");
         textNode = <BotMessage content={textStream.value} />;

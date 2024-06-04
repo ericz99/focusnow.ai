@@ -121,6 +121,18 @@ export function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => {
                 const org = row.original as SessionItemIncluded;
 
+                // #### need to update  session data if sessionTimer is hidden
+                // if (
+                //   org!.endTime! &&
+                //   new Date().getTime() > Number(org!.endTime!) &&
+                //   !org?.isFinished
+                // ) {
+                //   await updateSessionData({
+                //     id: org!.id,
+                //     isFinished: true,
+                //   });
+                // }
+
                 return (
                   <TableRow
                     key={row.id}

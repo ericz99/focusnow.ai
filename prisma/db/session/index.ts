@@ -7,7 +7,7 @@ export const sessionSchema = z.object({
   resumeId: z.string(),
   coverLetterId: z.string().nullable().optional(),
   jobId: z.string(),
-  // additionalInfo: z.string().nullable(),
+  additionalInfo: z.string().nullable(),
 });
 
 export type SessionSchema = z.infer<typeof sessionSchema>;

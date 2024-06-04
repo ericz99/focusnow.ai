@@ -21,6 +21,7 @@ export function ChatPanel({ id }: ChatPanelProps) {
   const { incomingData, releaseData } = useDataStore();
   const { generateResponse, solveCodeSnippet } = useActions();
   const [messages, setMessages] = useUIState();
+  const [receiveData, setReceiveData] = useState(false);
 
   const convertImageToB64 = useCallback(async (url: string) => {
     // Fetch the image from the URL
@@ -41,6 +42,7 @@ export function ChatPanel({ id }: ChatPanelProps) {
         // Get the base64 string
         const base64String = reader.result as string;
         // Remove the data URL prefix
+        // # openai this library doesn't  seem to accept URL, and needs this format
         const base64WithoutPrefix = base64String.split(",")[1];
         resolve(base64WithoutPrefix);
       };
@@ -53,17 +55,25 @@ export function ChatPanel({ id }: ChatPanelProps) {
     pusherClient.subscribe(`sess_${id}`);
 
     pusherClient.bind("incoming-data", async (url: string) => {
+      setReceiveData(true);
+
       const resp = await convertImageToB64(url);
 
       const data = await solveCodeSnippet({
         data: resp,
       });
 
+      console.log("called???");
+
       setMessages((cur: ClientMessage[]) => [...cur, data]);
+      setReceiveData(false);
     });
 
-    return () => pusherClient.unsubscribe(`sess_${id}`);
-  }, [id, setMessages]);
+    return () => {
+      pusherClient.unbind("incoming-data");
+      pusherClient.unsubscribe(`sess_${id}`);
+    };
+  }, []);
 
   useEffect(() => {
     if ($scrollToBottomRef.current) {
@@ -164,7 +174,7 @@ export function ChatPanel({ id }: ChatPanelProps) {
   return (
     <div className="max-w-full p-4 relative h-full w-full flex gap-4">
       <InterviewerPanel messages={messages} />
-      <CopilotPanel messages={messages} />
+      <CopilotPanel messages={messages} receiveData={receiveData} />
     </div>
   );
 }

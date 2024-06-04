@@ -74,7 +74,6 @@ export function CopilotLauncher({
     resolver: zodResolver(sessionSchema),
     defaultValues: {
       totalTime: "60_M",
-      additionalInfo: "",
     },
   });
 

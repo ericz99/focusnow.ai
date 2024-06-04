@@ -8,9 +8,10 @@ import { EmptyScreen } from "@/components/internals/empty-screen";
 
 interface CopilotPanelProps {
   messages: ClientMessage[];
+  receiveData: boolean;
 }
 
-export function CopilotPanel({ messages }: CopilotPanelProps) {
+export function CopilotPanel({ messages, receiveData }: CopilotPanelProps) {
   const copilotMessagesOnly = useMemo(() => {
     return messages.filter((m) => m.role == "assistant");
   }, [messages]);
@@ -18,8 +19,14 @@ export function CopilotPanel({ messages }: CopilotPanelProps) {
   return (
     <div className="flex-1 flex flex-col relative w-full h-full">
       <div className="w-full h-full rounded-lg border-x-2 border-b-2 border-solid border-zinc-100">
-        <div className="w-full rounded-t-lg p-3 bg-zinc-200 backdrop-blur text-lg text-zinc-700 font-semibold shadow-zinc-700">
+        <div className="w-full flex items-center justify-between rounded-t-lg p-3 bg-zinc-200 backdrop-blur text-lg text-zinc-700 font-semibold shadow-zinc-700">
           Copilot
+          {receiveData && (
+            <div className="ml-4 text-sm flex items-center">
+              <span className="mr-2 bg-green-500 h-4 w-4 rounded-full animate-pulse r" />
+              Received Image From User
+            </div>
+          )}
         </div>
 
         <div className="h-full w-full flex flex-col relative">
