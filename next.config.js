@@ -1,7 +1,29 @@
 /** @type {import('next').NextConfig} */
+const CopyPlugin = require("copy-webpack-plugin");
+
 const nextConfig = {
   webpack(config) {
     config.externals.push({ vectordb: "vectordb" });
+
+    config.plugins.push(
+      new CopyPlugin({
+        patterns: [
+          {
+            from: "./node_modules/onnxruntime-web/dist/ort-wasm.wasm",
+            to: "static/chunks",
+          },
+          {
+            from: "./node_modules/onnxruntime-web/dist/ort-wasm-simd.wasm",
+            to: "static/chunks",
+          },
+          {
+            from: "./model",
+            to: "static/chunks",
+          },
+        ],
+      })
+    );
+
     return config;
   },
   async rewrites() {
@@ -17,7 +39,7 @@ const nextConfig = {
     ];
   },
   // This is required to support PostHog trailing slash API requests
-  skipTrailingSlashRedirect: true, 
+  skipTrailingSlashRedirect: true,
 };
 
 module.exports = nextConfig;

@@ -5,17 +5,112 @@
 // 0.0014702180095889513 - talking
 // 0.000003727135943205314 -- not takking
 
+class Resampler {
+  constructor(options) {
+    this.options = options;
+    this.inputBuffer = [];
+
+    if (options.nativeSampleRate < 16000) {
+      console.error(
+        "nativeSampleRate is too low. Should have 16000 = targetSampleRate <= nativeSampleRate"
+      );
+    }
+  }
+
+  process(audioFrame) {
+    const outputFrames = [];
+    this.fillInputBuffer(audioFrame);
+
+    while (this.hasEnoughDataForFrame()) {
+      const outputFrame = this.generateOutputFrame();
+      outputFrames.push(outputFrame);
+    }
+
+    return outputFrames;
+  }
+
+  async *stream(audioFrame) {
+    this.fillInputBuffer(audioFrame);
+
+    while (this.hasEnoughDataForFrame()) {
+      const outputFrame = this.generateOutputFrame();
+      yield outputFrame;
+    }
+  }
+
+  fillInputBuffer(audioFrame) {
+    for (const sample of audioFrame) {
+      this.inputBuffer.push(sample);
+    }
+  }
+
+  hasEnoughDataForFrame() {
+    return (
+      (this.inputBuffer.length * this.options.targetSampleRate) /
+        this.options.nativeSampleRate >=
+      this.options.targetFrameSize
+    );
+  }
+
+  generateOutputFrame() {
+    const outputFrame = new Float32Array(this.options.targetFrameSize);
+    let outputIndex = 0;
+    let inputIndex = 0;
+
+    while (outputIndex < this.options.targetFrameSize) {
+      let sum = 0;
+      let num = 0;
+      while (
+        inputIndex <
+        Math.min(
+          this.inputBuffer.length,
+          ((outputIndex + 1) * this.options.nativeSampleRate) /
+            this.options.targetSampleRate
+        )
+      ) {
+        const value = this.inputBuffer[inputIndex];
+        if (value !== undefined) {
+          sum += value;
+          num++;
+        }
+        inputIndex++;
+      }
+      outputFrame[outputIndex] = sum / num;
+      outputIndex++;
+    }
+
+    this.inputBuffer = this.inputBuffer.slice(inputIndex);
+    return outputFrame;
+  }
+}
+
 class WorkletProcessor extends AudioWorkletProcessor {
   static BUFFER_SIZE = 4096;
   static SAMPLE_RATE = 44100; // Change this to your desired sample rate
-  static CHUNK_DURATION = 10; // Duration of each audio chunk in seconds
 
-  constructor() {
+  constructor(options) {
     super();
+    this.options = options.processorOptions;
     this.buffer = new Float32Array(WorkletProcessor.BUFFER_SIZE);
     this.byteWritten = 0;
     this.energyThreshold = 0.000000005; // talking in the mic
     this.speechDetected = false
+    this.resampler = null;
+    this._initialized = false;
+    this._stopProcessing = false;
+
+    this.init();
+  }
+
+  async init() {
+    this.resampler = new Resampler({
+      nativeSampleRate: WorkletProcessor.SAMPLE_RATE,
+      targetSampleRate: 16000,
+      targetFrameSize: this.options.frameSamples,
+    });
+
+    this._initialized = true;
+    console.log('initialized worklet')
   }
 
   // # credit1: https://www.reddit.com/r/learnjavascript/comments/1buqjr3/solution_web_audio_replacing/
@@ -24,15 +119,29 @@ class WorkletProcessor extends AudioWorkletProcessor {
   // https://stackoverflow.com/questions/25775704/html5-audio-api-inputbuffer-getchanneldata-to-audio-array-buffer
   // https://stackoverflow.com/questions/61264581/how-to-convert-audio-buffer-to-mp3-in-javascript
   process(inputs, _outputs, _parameters) {
-    const input = inputs[0][0]; // first channel of first input
+    if (this._stopProcessing) {
+      return false;
+    }
 
-    const isVoiceActive = this.detectVoiceActivity(input);
+    const input = inputs[0][0]; 
 
-    if (isVoiceActive) {
-      this.append(input);
-    } else {
-      if (this.byteWritten > 0 && !this.speechDetected) {
-        this.flush()
+    // const isVoiceActive = this.detectVoiceActivity(input);
+
+    // if (isVoiceActive) {
+    //   this.append(input);
+    // } else {
+    //   if (this.byteWritten > 0 && !this.speechDetected) {
+    //     this.flush()
+    //   }
+    // }
+
+    if (this._initialized && input instanceof Float32Array) {
+      const frames = this.resampler.process(input);
+      for (const frame of frames) {
+        this.port.postMessage(
+          { message: "AUDIO_FRAME", data: frame.buffer },
+          [frame.buffer]
+        )
       }
     }
 

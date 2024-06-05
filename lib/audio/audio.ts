@@ -8,6 +8,8 @@ function audioBufferToWav(
 ) {
   opt = opt || {};
 
+  console.log("buffer", buffer);
+
   var numChannels = buffer.numberOfChannels;
   var sampleRate = buffer.sampleRate;
   var format = opt.float32 ? 3 : 1;
@@ -23,19 +25,17 @@ function audioBufferToWav(
   return encodeWAV(result, format, sampleRate, numChannels, bitDepth);
 }
 
-function encodeWAV(
-  samples: string | any[],
-  format: number,
-  sampleRate: number,
-  numChannels: number,
-  bitDepth: number
+export function encodeWAV(
+  samples: Float32Array,
+  format: number = 3,
+  sampleRate: number = 16000,
+  numChannels: number = 1,
+  bitDepth: number = 32
 ) {
   var bytesPerSample = bitDepth / 8;
   var blockAlign = numChannels * bytesPerSample;
-
   var buffer = new ArrayBuffer(44 + samples.length * bytesPerSample);
   var view = new DataView(buffer);
-
   /* RIFF identifier */
   writeString(view, 0, "RIFF");
   /* RIFF chunk length */
@@ -68,38 +68,35 @@ function encodeWAV(
   } else {
     writeFloat32(view, 44, samples);
   }
-
   return buffer;
 }
 
-function interleave(inputL: string | any[], inputR: string | any[]) {
+function interleave(inputL: Float32Array, inputR: Float32Array) {
   var length = inputL.length + inputR.length;
   var result = new Float32Array(length);
-
   var index = 0;
   var inputIndex = 0;
-
   while (index < length) {
-    result[index++] = inputL[inputIndex];
-    result[index++] = inputR[inputIndex];
+    result[index++] = inputL[inputIndex] as number;
+    result[index++] = inputR[inputIndex] as number;
     inputIndex++;
   }
   return result;
 }
 
-function writeFloat32(output: DataView, offset: number, input: string | any[]) {
+function writeFloat32(output: DataView, offset: number, input: Float32Array) {
   for (var i = 0; i < input.length; i++, offset += 4) {
-    output.setFloat32(offset, input[i], true);
+    output.setFloat32(offset, input[i] as number, true);
   }
 }
 
 function floatTo16BitPCM(
   output: DataView,
   offset: number,
-  input: string | any[]
+  input: Float32Array
 ) {
   for (var i = 0; i < input.length; i++, offset += 2) {
-    var s = Math.max(-1, Math.min(1, input[i]));
+    var s = Math.max(-1, Math.min(1, input[i] as number));
     output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
   }
 }
@@ -120,21 +117,19 @@ function arrayBufferToBase64(buffer: ArrayBuffer) {
   return btoa(binary);
 }
 
-export function saveAudio(chunks: any[], audioContext: any) {
-  const length = chunks.reduce(
-    (prev: any, cur: string | any[]) => prev + cur.length,
-    0
-  );
+export function saveAudio(chunks: Float32Array[], audioContext: any) {
+  const length = chunks.reduce((prev, cur) => prev + cur.length, 0);
 
   // # nothing to be saved because there isn't any audio
   if (!length || length == 0) return null;
 
-  const outputBuffer = audioContext.createBuffer(1, length, 44100);
+  const outputBuffer = audioContext.createBuffer(1, length, 16000);
   const outputData = outputBuffer.getChannelData(0);
 
   let offset = 0;
   for (let i = 0; i < chunks.length; i++) {
     const inputData = chunks[i];
+
     for (let j = 0; j < inputData.length; j++) {
       outputData[offset] = inputData[j];
       offset++;
@@ -143,13 +138,23 @@ export function saveAudio(chunks: any[], audioContext: any) {
 
   console.log("output buffer data ", outputBuffer);
 
-  if (outputBuffer.duration < 1) return null;
+  // if (outputBuffer.duration < 0.9) return null;
 
   // convert audiobuffer to wav
   const wav = audioBufferToWav(outputBuffer, {});
   const blob = new Blob([wav], {
     type: "audio/wav",
   });
+
+  const url = window.URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  document.body.appendChild(anchor);
+  // anchor.style = "display: none";
+  anchor.href = url;
+  anchor.download = "audio.wav";
+  anchor.click();
+  window.URL.revokeObjectURL(url);
+  document.body.removeChild(anchor);
 
   // const b64 = arrayBufferToBase64(wav);
   // return b64;

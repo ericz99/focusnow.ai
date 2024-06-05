@@ -49,6 +49,8 @@ export async function POST(req: NextRequest) {
             contentType: "audio/wav",
           }),
           model: "whisper-1",
+          prompt:
+            "Please ignore the audio if it silence, and avoid making any transcription if there is no sound.",
         });
 
         console.log("resp", resp);

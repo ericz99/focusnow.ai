@@ -1,8 +1,15 @@
 "use client";
 
+import * as ortInstance from "onnxruntime-web";
 import { ReactElement, useCallback, useEffect, useRef, useState } from "react";
-import { saveAudio } from "@/lib/audio";
+import { saveAudio } from "@/lib/audio/audio";
 import { useDataStore } from "@/lib/stores";
+import { Silero, SpeechProbabilities } from "@/lib/audio/models";
+import { Message } from "@/lib/audio/messages";
+import {
+  FrameProcessor,
+  defaultFrameProcessorOptions,
+} from "@/lib/audio/frame-processor";
 
 export type StatusMessages =
   | "media_aborted"
@@ -38,6 +45,7 @@ export default function useMediaRecorder() {
   const audioContext = useRef<AudioContext | null>(null);
   const audioSource = useRef<MediaStreamAudioSourceNode | null>(null);
   const audioOutput = useRef<MediaDeviceInfo[]>([]);
+  const frameProcessor = useRef<FrameProcessor>();
   const lastSpeechDetectedTime = useRef<number | null>(null);
   const [_status, setStatus] = useState<StatusMessages>("idle");
   const [_error, setError] = useState<keyof typeof RecorderErrors>("NONE");
@@ -141,8 +149,9 @@ export default function useMediaRecorder() {
 
     console.log("starting stream?");
 
-    if (pauseRef.current) {
+    if (pauseRef.current && frameProcessor.current) {
       pauseRef.current = false;
+      frameProcessor.current.resume();
       return;
     }
 
@@ -160,54 +169,130 @@ export default function useMediaRecorder() {
 
         const node = new AudioWorkletNode(
           audioContext.current,
-          "worklet-processor"
+          "worklet-processor",
+          {
+            processorOptions: {
+              frameSamples: 1536,
+            },
+          }
         );
 
-        audioSource.current.connect(node).connect(gainNode).connect(audioDest);
-        node.port.onmessage = onStreamData;
-      }
-    }
-  };
+        const ort = ortInstance;
 
-  const onStreamData = (e: any) => {
-    if (!pauseRef.current) {
-      const { buffer, speechDetected } = e.data;
-      const _buffer = new Float32Array(buffer);
-      // console.log("incoming buffer -> ", _buffer);
-      console.log("speechDetected", speechDetected);
-      mediaChunks.current.push(_buffer);
+        let model: Silero;
 
-      // # collect timestamp
-      if (
-        lastSpeechDetectedTime.current == null ||
-        lastSpeechDetectedTime.current < Date.now()
-      ) {
-        lastSpeechDetectedTime.current = Date.now();
-      }
+        try {
+          model = await Silero.new(ort);
+        } catch (error) {
+          console.error("error", error);
+          throw error;
+        }
 
-      if (!speechDetected && lastSpeechDetectedTime.current != null) {
-        console.log("lastSpeechDetectedTime", lastSpeechDetectedTime.current);
-
-        setTimeout(() => {
-          if (Date.now() - lastSpeechDetectedTime.current! > 500) {
-            console.log("should collect");
-            const blob = saveAudio(mediaChunks.current, audioContext.current);
-
-            if (blob) {
-              console.log("blob", blob);
-
-              mediaChunks.current = [];
-              appendData(blob);
-            }
+        frameProcessor.current = new FrameProcessor(
+          model.process,
+          model.reset_state,
+          {
+            ...defaultFrameProcessorOptions,
           }
-        }, 500);
+        );
+
+        // start the frame
+        frameProcessor.current.resume();
+
+        audioSource.current.connect(node).connect(gainNode).connect(audioDest);
+        node.port.onmessage = async (e: any) => {
+          switch (e.data.message) {
+            case Message.AudioFrame:
+              const buffer = e.data.data;
+              const frame = new Float32Array(buffer);
+
+              if (frameProcessor.current) {
+                const ev = await frameProcessor.current.process(frame);
+                console.log("ev", ev);
+                handleFrameProcessorEvent(ev);
+              }
+
+              break;
+            default:
+              break;
+          }
+        };
       }
     }
   };
+
+  const handleFrameProcessorEvent = (
+    ev: Partial<{
+      probs: SpeechProbabilities;
+      msg: Message;
+      audio: Float32Array;
+    }>
+  ) => {
+    switch (ev.msg) {
+      case Message.SpeechEnd:
+        // # save audio
+        if (ev.audio) {
+          const blob = saveAudio([ev.audio], audioContext.current);
+
+          // if (blob) {
+          //   appendData(blob);
+          // }
+        }
+
+        break;
+      default:
+        break;
+    }
+  };
+
+  // const onStreamData = (e: any) => {
+  //   if (!pauseRef.current) {
+  //     const { buffer, speechDetected } = e.data;
+  //     const _buffer = new Float32Array(buffer);
+  //     // console.log("incoming buffer -> ", _buffer);
+  //     console.log("speechDetected", speechDetected);
+  //     mediaChunks.current.push(_buffer);
+
+  //     // # collect timestamp
+  //     if (
+  //       lastSpeechDetectedTime.current == null ||
+  //       lastSpeechDetectedTime.current < Date.now()
+  //     ) {
+  //       lastSpeechDetectedTime.current = Date.now();
+  //     }
+
+  //     if (!speechDetected && lastSpeechDetectedTime.current != null) {
+  //       console.log("lastSpeechDetectedTime", lastSpeechDetectedTime.current);
+
+  //       setTimeout(() => {
+  //         if (Date.now() - lastSpeechDetectedTime.current! > 500) {
+  //           console.log("should collect");
+  //           const blob = saveAudio(mediaChunks.current, audioContext.current);
+
+  //           if (blob) {
+  //             console.log("blob", blob);
+
+  //             mediaChunks.current = [];
+  //             appendData(blob);
+  //           } else {
+  //             mediaChunks.current = [];
+  //           }
+  //         }
+  //       }, 500);
+  //     }
+  //   }
+  // };
 
   const stopStream = () => {
-    if (!audioContext.current || !audioSource.current) return;
+    if (
+      !audioContext.current ||
+      !audioSource.current ||
+      !frameProcessor.current
+    )
+      return;
     pauseRef.current = true;
+    const ev = frameProcessor.current.pause();
+    console.log("ev", ev);
     console.log("Pausing audio source!");
   };
 

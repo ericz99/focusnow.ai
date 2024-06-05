@@ -72,7 +72,7 @@ export function ChatPanel({ id }: ChatPanelProps) {
       pusherClient.unbind("incoming-data");
       pusherClient.unsubscribe(`sess_${id}`);
     };
-  }, []);
+  }, [setMessages]);
 
   useEffect(() => {
     if ($scrollToBottomRef.current) {

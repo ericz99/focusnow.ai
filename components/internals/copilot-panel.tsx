@@ -14,6 +14,7 @@ interface CopilotPanelProps {
 
 export function CopilotPanel({ messages, receiveData }: CopilotPanelProps) {
   const $endOfMessage = useRef<HTMLDivElement | null>(null);
+  const $messageContainerRef = useRef<HTMLDivElement | null>(null);
   const [isBottom, setBottomRef] = useScrollToBottom(false);
 
   const copilotMessagesOnly = useMemo(() => {
@@ -21,16 +22,16 @@ export function CopilotPanel({ messages, receiveData }: CopilotPanelProps) {
   }, [messages]);
 
   useEffect(() => {
-    if (messages && $endOfMessage.current) {
-      $endOfMessage.current.scrollIntoView({ behavior: "instant" });
+    if (copilotMessagesOnly && $endOfMessage.current) {
+      $endOfMessage.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [copilotMessagesOnly]);
 
   useEffect(() => {
-    if (!isBottom && $endOfMessage.current) {
-      $endOfMessage.current.scrollIntoView({ behavior: "instant" });
+    if ($endOfMessage.current) {
+      $endOfMessage.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [isBottom]);
+  }, []);
 
   return (
     <div className="flex-1 flex flex-col relative w-full h-full">
@@ -49,7 +50,10 @@ export function CopilotPanel({ messages, receiveData }: CopilotPanelProps) {
           <div className="flex-1 pb-[50px] overflow-hidden relative">
             <div className="h-full overflow-y-auto w-full relative">
               {copilotMessagesOnly.length ? (
-                <div className="flex flex-col text-sm">
+                <div
+                  className="flex flex-col text-sm"
+                  ref={$messageContainerRef}
+                >
                   {copilotMessagesOnly.map(
                     (m: ClientMessage, index: number) => (
                       <div key={m.id}>
@@ -71,6 +75,17 @@ export function CopilotPanel({ messages, receiveData }: CopilotPanelProps) {
               <div className="w-full h-2 flex-shrink-0" />
             </div>
           </div>
+
+          <button
+            className="absolute bottom-0"
+            onClick={() => {
+              if ($endOfMessage.current) {
+                $endOfMessage.current.scrollIntoView({ behavior: "smooth" });
+              }
+            }}
+          >
+            scroll down
+          </button>
         </div>
       </div>
     </div>
