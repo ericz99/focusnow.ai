@@ -1,12 +1,13 @@
 import OpenAI, { toFile } from "openai";
 import { Buffer } from "node:buffer";
 import { NextResponse, NextRequest } from "next/server";
-import { createClient, DeepgramClient } from "@deepgram/sdk";
+import { DeepgramClient } from "@deepgram/sdk";
+import deepgram from "@/server/deepgram";
 
 let model: DeepgramClient | OpenAI | null = null;
 
 if (process.env.ENABLED_AUDIO_AI == "deepgram") {
-  model = createClient(process.env.DEEPGRAM_API_KEY!);
+  model = deepgram;
 }
 
 if (process.env.ENABLED_AUDIO_AI == "openai") {
@@ -67,10 +68,12 @@ export async function POST(req: NextRequest) {
         const { result, error } = await model.listen.prerecorded.transcribeFile(
           buffer,
           {
-            model: "nova-2",
+            model: "nova-2-general",
             punctuate: true,
             filler_words: true,
             utterances: true,
+            smart_format: true,
+            language: "en-US",
           }
         );
 

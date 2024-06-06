@@ -5,20 +5,44 @@
 // 0.0014702180095889513 - talking
 // 0.000003727135943205314 -- not takking
 
+import { Resampler } from "./resampler";
+import { Message } from "./messages";
+
 class WorkletProcessor extends AudioWorkletProcessor {
   static BUFFER_SIZE = 4096;
   static SAMPLE_RATE = 44100; // Change this to your desired sample rate
+  options: any;
   buffer: Float32Array;
   byteWritten: number;
   energyThreshold: number;
   speechDetected: boolean;
+  resampler: Resampler | null;
+  _initialized: boolean;
+  _stopProcessing: boolean;
 
-  constructor() {
+  constructor(options: { processorOptions: any }) {
     super();
+    this.options = options.processorOptions;
     this.buffer = new Float32Array(WorkletProcessor.BUFFER_SIZE);
     this.byteWritten = 0;
     this.energyThreshold = 0.000000005; // talking in the mic
     this.speechDetected = false;
+    this.resampler = null;
+    this._initialized = false;
+    this._stopProcessing = false;
+
+    this.init();
+  }
+
+  async init() {
+    this.resampler = new Resampler({
+      nativeSampleRate: WorkletProcessor.SAMPLE_RATE,
+      targetSampleRate: 16000,
+      targetFrameSize: this.options.frameSamples,
+    });
+
+    this._initialized = true;
+    console.log("initialized worklet");
   }
 
   // # credit1: https://www.reddit.com/r/learnjavascript/comments/1buqjr3/solution_web_audio_replacing/
@@ -27,15 +51,29 @@ class WorkletProcessor extends AudioWorkletProcessor {
   // https://stackoverflow.com/questions/25775704/html5-audio-api-inputbuffer-getchanneldata-to-audio-array-buffer
   // https://stackoverflow.com/questions/61264581/how-to-convert-audio-buffer-to-mp3-in-javascript
   process(inputs: any[][], _outputs: any, _parameters: any) {
-    const input = inputs[0][0]; // first channel of first input
+    if (this._stopProcessing) {
+      return false;
+    }
 
-    const isVoiceActive = this.detectVoiceActivity(input);
+    const input = inputs[0][0];
 
-    if (isVoiceActive) {
-      this.append(input);
-    } else {
-      if (this.byteWritten > 0 && !this.speechDetected) {
-        this.flush();
+    // const isVoiceActive = this.detectVoiceActivity(input);
+
+    // if (isVoiceActive) {
+    //   this.append(input);
+    // } else {
+    //   if (this.byteWritten > 0 && !this.speechDetected) {
+    //     this.flush()
+    //   }
+    // }
+
+    if (this._initialized && input instanceof Float32Array) {
+      const frames = this.resampler!.process(input);
+      for (const frame of frames) {
+        this.port.postMessage(
+          { message: Message.AudioFrame, data: frame.buffer },
+          [frame.buffer]
+        );
       }
     }
 

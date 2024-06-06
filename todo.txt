@@ -111,6 +111,8 @@ figure out why the scroll to bottom is not working
 
 work on optimized performance on audio, the audio sometimes isn't working as expect and it translate wrong
 lets rewrite the processor audio
+
+openai whisper + deepgram is kinda slow
 ---------------
 
 posthog=ad,analytic,cookie consent

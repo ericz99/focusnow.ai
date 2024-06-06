@@ -11,6 +11,16 @@ import {
   defaultFrameProcessorOptions,
 } from "@/lib/audio/frame-processor";
 
+import {
+  LiveClient,
+  LiveConnectionState,
+  LiveTranscriptionEvents,
+  type LiveSchema,
+  type LiveTranscriptionEvent,
+} from "@deepgram/sdk";
+
+import deepgram from "@/server/deepgram";
+
 export type StatusMessages =
   | "media_aborted"
   | "permission_denied"
@@ -88,9 +98,7 @@ export default function useMediaRecorder() {
         constraints
       );
 
-      const ctx = new AudioContext({
-        sampleRate: 44100,
-      });
+      const ctx = new AudioContext();
 
       // # remove video track
       captureStream.removeTrack(captureStream.getVideoTracks()[0]);
@@ -234,9 +242,9 @@ export default function useMediaRecorder() {
         if (ev.audio) {
           const blob = saveAudio([ev.audio], audioContext.current);
 
-          // if (blob) {
-          //   appendData(blob);
-          // }
+          if (blob) {
+            appendData(blob);
+          }
         }
 
         break;

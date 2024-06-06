@@ -20,6 +20,10 @@ const nextConfig = {
             from: "./model",
             to: "static/chunks",
           },
+          {
+            from: './lib/audio/processor.ts',
+            to: 'static/chunks'
+          }
         ],
       })
     );

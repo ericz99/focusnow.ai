@@ -146,15 +146,15 @@ export function saveAudio(chunks: Float32Array[], audioContext: any) {
     type: "audio/wav",
   });
 
-  const url = window.URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  document.body.appendChild(anchor);
-  // anchor.style = "display: none";
-  anchor.href = url;
-  anchor.download = "audio.wav";
-  anchor.click();
-  window.URL.revokeObjectURL(url);
-  document.body.removeChild(anchor);
+  // const url = window.URL.createObjectURL(blob);
+  // const anchor = document.createElement("a");
+  // document.body.appendChild(anchor);
+  // // anchor.style = "display: none";
+  // anchor.href = url;
+  // anchor.download = "audio.wav";
+  // anchor.click();
+  // window.URL.revokeObjectURL(url);
+  // document.body.removeChild(anchor);
 
   // const b64 = arrayBufferToBase64(wav);
   // return b64;

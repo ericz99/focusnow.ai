@@ -21,6 +21,8 @@ export default async function CopilotPage() {
   const activeSession = sessions?.filter((s) => !s.isFinished);
   const finishSession = sessions?.filter((s) => s.isFinished);
 
+  // if any active session expired just update here!
+
   return (
     <div className="container flex flex-col relative mx-auto max-w-screen-2xl pt-24 px-4 md:px-8">
       <div className="flex items-center justify-between mb-6">
