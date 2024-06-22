@@ -20,12 +20,10 @@ import deepgram from "@/server/deepgram";
 
 interface DeepgramContextType {
   connection: LiveClient | null;
-  connectToDeepgram: (
-    options: LiveSchema,
-    endpoint?: string
-  ) => Promise<LiveClient>;
+  connectToDeepgram: (options: LiveSchema, endpoint?: string) => Promise<void>;
   disconnectFromDeepgram: () => void;
   connectionState: LiveConnectionState;
+  isReadyState: () => Promise<LiveConnectionState>;
 }
 
 const DeepgramContext = createContext<DeepgramContextType | undefined>(
@@ -54,18 +52,22 @@ const DeepgramContextProvider: FunctionComponent<
   const connectToDeepgram = async (options: LiveSchema, endpoint?: string) => {
     const conn = deepgram.listen.live(options, endpoint);
 
-    console.log("conn", conn);
-
     conn.addListener(LiveTranscriptionEvents.Open, () => {
+      console.log("open");
       setConnectionState(LiveConnectionState.OPEN);
     });
 
     conn.addListener(LiveTranscriptionEvents.Close, () => {
+      console.log("close");
+
       setConnectionState(LiveConnectionState.CLOSED);
     });
 
     setConnection(conn);
-    return conn;
+  };
+
+  const isReadyState = async () => {
+    return connection!.getReadyState();
   };
 
   const disconnectFromDeepgram = async () => {
@@ -82,6 +84,7 @@ const DeepgramContextProvider: FunctionComponent<
         connectToDeepgram,
         disconnectFromDeepgram,
         connectionState,
+        isReadyState,
       }}
     >
       {children}

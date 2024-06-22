@@ -9,6 +9,7 @@ import { AI } from "./actions";
 import { notFound } from "next/navigation";
 import { ServerMessage, UIState } from "@/lib/types";
 import { UserMessage } from "@/components/internals/chat-message";
+import { DeepgramContextProvider } from "@/lib/stores";
 
 export default async function SessionLayout({
   children,
@@ -74,7 +75,7 @@ export default async function SessionLayout({
       }}
       initialUIState={ui}
     >
-      {children}
+      <DeepgramContextProvider>{children}</DeepgramContextProvider>
     </AI>
   );
 }

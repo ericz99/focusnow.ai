@@ -135,15 +135,20 @@ class WorkletProcessor extends AudioWorkletProcessor {
     //   }
     // }
 
-    if (this._initialized && input instanceof Float32Array) {
-      const frames = this.resampler.process(input);
-      for (const frame of frames) {
-        this.port.postMessage(
-          { message: "AUDIO_FRAME", data: frame.buffer },
-          [frame.buffer]
-        )
-      }
-    }
+    this.port.postMessage({
+      message: 'AUDIO_FRAME',
+      data: input
+    });
+
+    // if (this._initialized && input instanceof Float32Array) {
+    //   const frames = this.resampler.process(input);
+    //   for (const frame of frames) {
+    //     this.port.postMessage(
+    //       { message: "AUDIO_FRAME", data: frame.buffer },
+    //       [frame.buffer]
+    //     )
+    //   }
+    // }
 
     return true;
   }

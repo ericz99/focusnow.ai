@@ -14,7 +14,7 @@ import { formatTime } from "@/lib/utils";
 
 const MediaRecorder = dynamic(
   () =>
-    import("@/lib/hooks/use-media-recorder").then(
+    import("@/lib/hooks/use-audio-recorder").then(
       (mod) => mod.ReactMediaRecorder
     ),
   { ssr: false }
