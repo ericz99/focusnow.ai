@@ -51,16 +51,16 @@ Focusnow.ai is an AI-powered voice transcription service utilizing Whisper and D
 
 3. Set up environment variables:
 
-    Copy the sample `.env.sample` file in the root directory and place it into `.env`:
+    Copy the sample `.env.example` file in the root directory and place it into `.env`:
 
 
 ### Demo
 
 1. Copilot Demo
 
-<video src="./public/copilot-demo1.mp4" width="1000" height="1000" controls></video>
+<video src="public/copilot-demo1.mp4" width="1000" height="1000"  type="video/mp4" controls></video>
 
-<video src="./public/copilot-demo.mp4" width="1000" height="1000" controls></video>
+<video src="public/copilot-demo.mp4" width="1000" height="1000"  type="video/mp4" controls></video>
 
 ### Running the Application
 
