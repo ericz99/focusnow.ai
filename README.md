@@ -58,9 +58,9 @@ Focusnow.ai is an AI-powered voice transcription service utilizing Whisper and D
 
 1. Copilot Demo
 
-<video src="public/copilot-demo1.mp4" width="1000" height="1000" controls></video>
+<video src="./public/copilot-demo1.mp4" width="1000" height="1000" controls></video>
 
-<video src="public/copilot-demo.mp4" width="1000" height="1000" controls></video>
+<video src="./public/copilot-demo.mp4" width="1000" height="1000" controls></video>
 
 ### Running the Application
 
