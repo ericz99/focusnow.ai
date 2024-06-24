@@ -2,6 +2,10 @@
 
 Focusnow.ai is an AI-powered voice transcription service utilizing Whisper and Deepgram models. It allows users to transcribe their audio output into text and then employs GPT-4 to generate valid responses based on the transcriptions.
 
+## Dev Note
+
+This is not a final finished stage product but a working MVP product that has all working functionality. 
+
 ## Features
 
 - **Voice Transcription**: Convert audio files to text using state-of-the-art AI models Whisper and Deepgram.
@@ -92,7 +96,7 @@ Focusnow.ai is an AI-powered voice transcription service utilizing Whisper and D
 
 5. After launching you will meet with an configuration page where you have to select a chrome tab to listen audio from, and this is important because you want to transcribe incoming audio data from that chrome tab, to get any response back from copilot.
 
-6. After you selected, just click continue, then run start.
+6. After you selected, just click continue, then run start. To start or end session, click on respective buttons.
 
 ## License
 
