@@ -54,13 +54,19 @@ Focusnow.ai is an AI-powered voice transcription service utilizing Whisper and D
     Copy the sample `.env.example` file in the root directory and place it into `.env`:
 
 
-### Demo
+### Folder Structure
 
-1. Copilot Demo
-
-<video src="public/copilot-demo1.mp4" width="1000" height="1000"  type="video/mp4" controls></video>
-
-<video src="public/copilot-demo.mp4" width="1000" height="1000"  type="video/mp4" controls></video>
+- `/app` where the main application lives in Next.js application
+- `/components` all components for the application
+- `/config` all configuration, such as stripe config
+- `/core` basic llm and vectordb, but its not being used as of now because we're using ai/rsc from vercel
+- `/extension` this was an experimental extension web audio api collector that I created, but right now its useless.
+- `/lib` all logic from hooks, stores and other misc stuff
+- `/model` this is mainly for voice activity detection using silero vad model
+- `/prisma` where all your database migration and schemas will live in
+- `/public` any assets
+- `/scripts` scripts that you will need, not being used right now
+- `/server` any backend classes that needs to be instantiated once
 
 ### Running the Application
 
@@ -80,7 +86,13 @@ Focusnow.ai is an AI-powered voice transcription service utilizing Whisper and D
     pnpm run dev
     ```
 
-3. Open your browser and navigate to `http://localhost:3000/app/dashboard` to see the application in action.
+3. Open your browser and navigate to `http://localhost:3000/app/dashboard` to see the application in action. But you will need to login and create and account to see the application in action.
+
+4. You must upload resume and/or cover letters, create an job application you're applying for, then create a new copilot session, and finally you can launch it.
+
+5. After launching you will meet with an configuration page where you have to select a chrome tab to listen audio from, and this is important because you want to transcribe incoming audio data from that chrome tab, to get any response back from copilot.
+
+6. After you selected, just click continue, then run start.
 
 ## License
 
