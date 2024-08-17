@@ -5,7 +5,6 @@ import { CircleCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { PriceItemIncluded } from "@/prisma/db/price";
-import { SubscriptionItemIncluded } from "@/prisma/db/subscription";
 import { useRouter } from "next/navigation";
 
 interface PricingCardProps {
